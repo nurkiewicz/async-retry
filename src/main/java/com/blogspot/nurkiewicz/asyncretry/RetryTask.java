@@ -33,9 +33,17 @@ class RetryTask<V> implements Runnable {
 			final V result = userTask.apply(context);
 			future.complete(result);
 		} catch(AbortRetryException abortEx) {
-			completeExceptionally(context.getRetryCount(), abortEx);
+			handleManualAbort(abortEx);
 		} catch(Throwable t) {
 			handleThrowable(t, System.currentTimeMillis() - startTime);
+		}
+	}
+
+	private void handleManualAbort(AbortRetryException abortEx) {
+		if (context.getLastThrowable() != null) {
+			future.completeExceptionally(context.getLastThrowable());
+		} else {
+			future.completeExceptionally(abortEx);
 		}
 	}
 
@@ -46,12 +54,8 @@ class RetryTask<V> implements Runnable {
 			final long delay = calculateNextDelay(taskDurationMillis, nextRetryContext, retryPolicy);
 			retryWithDelay(nextRetryContext, delay);
 		} else {
-			completeExceptionally(context.getRetryCount(), t);
+			future.completeExceptionally(new TooManyRetriesException(context.getRetryCount(), t));
 		}
-	}
-
-	private void completeExceptionally(int retryCount, Throwable lastCause) {
-		future.completeExceptionally(new TooManyRetriesException(retryCount, lastCause));
 	}
 
 	private long calculateNextDelay(long taskDurationMillis, AsyncRetryContext nextRetryContext, RetryPolicy retryPolicy) {
