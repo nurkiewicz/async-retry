@@ -4,13 +4,13 @@ import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 
 /**
  * @author Tomasz Nurkiewicz
- * @since 7/16/13, 7:25 PM
+ * @since 7/17/13, 11:21 PM
  */
-public class NeverRetryPolicy implements RetryPolicy {
+public class RetryInfinitelyPolicy implements RetryPolicy {
 
 	@Override
 	public boolean shouldContinue(RetryContext context) {
-		return false;
+		return true;
 	}
 
 }

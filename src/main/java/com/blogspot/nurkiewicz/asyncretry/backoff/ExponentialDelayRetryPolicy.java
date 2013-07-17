@@ -1,4 +1,4 @@
-package com.blogspot.nurkiewicz.asyncretry.policy;
+package com.blogspot.nurkiewicz.asyncretry.backoff;
 
 import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 
@@ -6,7 +6,7 @@ import com.blogspot.nurkiewicz.asyncretry.RetryContext;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 6:17 PM
  */
-public class ExponentialDelayRetryPolicy implements RetryPolicy {
+public class ExponentialDelayRetryPolicy implements Backoff {
 
 	private final long initialDelayMillis;
 	private final double multiplier;

@@ -1,7 +1,9 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.blogspot.nurkiewicz.asyncretry.backoff.Backoff;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
@@ -20,18 +22,28 @@ public class AsyncRetryExecutor implements RetryExecutor {
 	private final ScheduledExecutorService scheduler;
 	private final boolean fixedDelay;
 	private final RetryPolicy retryPolicy;
+	private final Backoff backoff;
 
 	public AsyncRetryExecutor(ScheduledExecutorService scheduler) {
-		this(scheduler, RetryPolicy.DEFAULT);
+		this(scheduler, RetryPolicy.DEFAULT, Backoff.DEFAULT);
+	}
+
+	public AsyncRetryExecutor(ScheduledExecutorService scheduler, Backoff backoff) {
+		this(scheduler, RetryPolicy.DEFAULT, backoff);
 	}
 
 	public AsyncRetryExecutor(ScheduledExecutorService scheduler, RetryPolicy retryPolicy) {
-		this(scheduler, retryPolicy, false);
+		this(scheduler, retryPolicy, Backoff.DEFAULT);
 	}
 
-	public AsyncRetryExecutor(ScheduledExecutorService scheduler, RetryPolicy retryPolicy, boolean fixedDelay) {
-		this.scheduler = scheduler;
-		this.retryPolicy = retryPolicy;
+	public AsyncRetryExecutor(ScheduledExecutorService scheduler, RetryPolicy retryPolicy, Backoff backoff) {
+		this(scheduler, retryPolicy, backoff, false);
+	}
+
+	public AsyncRetryExecutor(ScheduledExecutorService scheduler, RetryPolicy retryPolicy, Backoff backoff, boolean fixedDelay) {
+		this.scheduler = Objects.requireNonNull(scheduler);
+		this.retryPolicy = Objects.requireNonNull(retryPolicy);
+		this.backoff = Objects.requireNonNull(backoff);
 		this.fixedDelay = fixedDelay;
 	}
 
@@ -71,20 +83,28 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return retryPolicy;
 	}
 
+	public Backoff getBackoff() {
+		return backoff;
+	}
+
 	public AsyncRetryExecutor withScheduler(ScheduledExecutorService scheduler) {
-		return new AsyncRetryExecutor(scheduler, retryPolicy, fixedDelay);
+		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
 	public AsyncRetryExecutor withRetryPolicy(RetryPolicy retryPolicy) {
-		return new AsyncRetryExecutor(scheduler, retryPolicy, fixedDelay);
+		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
+	}
+
+	public AsyncRetryExecutor withBackoff(Backoff backoff) {
+		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
 	public AsyncRetryExecutor withFixedDelay() {
-		return new AsyncRetryExecutor(scheduler, retryPolicy, true);
+		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, true);
 	}
 
 	public AsyncRetryExecutor withFixedDelay(boolean fixedDelay) {
-		return new AsyncRetryExecutor(scheduler, retryPolicy, fixedDelay);
+		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
 	public AsyncRetryExecutor retryFor(Class<Throwable> retryForThrowable) {
@@ -100,27 +120,27 @@ public class AsyncRetryExecutor implements RetryExecutor {
 	}
 
 	public AsyncRetryExecutor withUniformJitter() {
-		return this.withRetryPolicy(this.retryPolicy.withUniformJitter());
+		return this.withBackoff(this.backoff.withUniformJitter());
 	}
 
 	public AsyncRetryExecutor withUniformJitter(long range) {
-		return this.withRetryPolicy(this.retryPolicy.withUniformJitter(range));
+		return this.withBackoff(this.backoff.withUniformJitter(range));
 	}
 
 	public AsyncRetryExecutor withProportionalJitter() {
-		return this.withRetryPolicy(this.retryPolicy.withProportionalJitter());
+		return this.withBackoff(this.backoff.withProportionalJitter());
 	}
 
 	public AsyncRetryExecutor withProportionalJitter(double multiplier) {
-		return this.withRetryPolicy(this.retryPolicy.withProportionalJitter(multiplier));
+		return this.withBackoff(this.backoff.withProportionalJitter(multiplier));
 	}
 
 	public AsyncRetryExecutor withMinDelay(long minDelayMillis) {
-		return this.withRetryPolicy(this.retryPolicy.withMinDelay(minDelayMillis));
+		return this.withBackoff(this.backoff.withMinDelay(minDelayMillis));
 	}
 
 	public AsyncRetryExecutor withMaxDelay(long maxDelayMillis) {
-		return this.withRetryPolicy(this.retryPolicy.withMaxDelay(maxDelayMillis));
+		return this.withBackoff(this.backoff.withMaxDelay(maxDelayMillis));
 	}
 
 	public AsyncRetryExecutor withMaxRetries(int times) {

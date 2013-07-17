@@ -1,8 +1,6 @@
-package com.blogspot.nurkiewicz.asyncretry.policy.random;
+package com.blogspot.nurkiewicz.asyncretry.backoff;
 
 import com.blogspot.nurkiewicz.asyncretry.RetryContext;
-import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
-import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicyWrapper;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -12,19 +10,19 @@ import java.util.function.Supplier;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 7:30 PM
  */
-abstract public class RandomDelayJitterRetryPolicy extends RetryPolicyWrapper {
+abstract public class RandomDelayBackoff extends BackoffWrapper {
 
 	private final Supplier<Random> randomSource;
 
-	protected RandomDelayJitterRetryPolicy(RetryPolicy target) {
+	protected RandomDelayBackoff(Backoff target) {
 		this(target, ThreadLocalRandom::current);
 	}
 
-	protected RandomDelayJitterRetryPolicy(RetryPolicy target, Random randomSource) {
+	protected RandomDelayBackoff(Backoff target, Random randomSource) {
 		this(target, () -> randomSource);
 	}
 
-	private RandomDelayJitterRetryPolicy(RetryPolicy target, Supplier<Random> randomSource) {
+	private RandomDelayBackoff(Backoff target, Supplier<Random> randomSource) {
 		super(target);
 		this.randomSource = randomSource;
 	}

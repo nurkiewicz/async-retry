@@ -1,7 +1,5 @@
 package com.blogspot.nurkiewicz.asyncretry.policy;
 
-import com.blogspot.nurkiewicz.asyncretry.RetryContext;
-
 import java.util.Objects;
 
 /**
@@ -16,13 +14,4 @@ abstract public class RetryPolicyWrapper implements RetryPolicy {
 		this.target = Objects.requireNonNull(target);
 	}
 
-	@Override
-	public long delayMillis(RetryContext context) {
-		return target.delayMillis(context);
-	}
-
-	@Override
-	public boolean shouldContinue(RetryContext context) {
-		return target.shouldContinue(context);
-	}
 }

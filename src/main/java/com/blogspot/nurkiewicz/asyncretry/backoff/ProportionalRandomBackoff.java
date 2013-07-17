@@ -1,6 +1,4 @@
-package com.blogspot.nurkiewicz.asyncretry.policy.random;
-
-import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
+package com.blogspot.nurkiewicz.asyncretry.backoff;
 
 import java.util.Random;
 
@@ -8,7 +6,7 @@ import java.util.Random;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 7:49 PM
  */
-public class ProportionalRandomJitterRetryPolicy extends RandomDelayJitterRetryPolicy {
+public class ProportionalRandomBackoff extends RandomDelayBackoff {
 
 	/**
 	 * Randomly up to +/- 10%
@@ -17,20 +15,20 @@ public class ProportionalRandomJitterRetryPolicy extends RandomDelayJitterRetryP
 
 	private final double multiplier;
 
-	public ProportionalRandomJitterRetryPolicy(RetryPolicy target) {
+	public ProportionalRandomBackoff(Backoff target) {
 		this(target, DEFAULT_MULTIPLIER);
 	}
 
-	public ProportionalRandomJitterRetryPolicy(RetryPolicy target, Random random) {
+	public ProportionalRandomBackoff(Backoff target, Random random) {
 		this(target, DEFAULT_MULTIPLIER, random);
 	}
 
-	public ProportionalRandomJitterRetryPolicy(RetryPolicy target, double multiplier) {
+	public ProportionalRandomBackoff(Backoff target, double multiplier) {
 		super(target);
 		this.multiplier = multiplier;
 	}
 
-	public ProportionalRandomJitterRetryPolicy(RetryPolicy target, double multiplier, Random random) {
+	public ProportionalRandomBackoff(Backoff target, double multiplier, Random random) {
 		super(target, random);
 		this.multiplier = multiplier;
 	}

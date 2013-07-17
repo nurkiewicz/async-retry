@@ -1,4 +1,4 @@
-package com.blogspot.nurkiewicz.asyncretry.policy;
+package com.blogspot.nurkiewicz.asyncretry.backoff;
 
 import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 
@@ -6,17 +6,17 @@ import com.blogspot.nurkiewicz.asyncretry.RetryContext;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 6:14 PM
  */
-public class FixedIntervalRetryPolicy implements RetryPolicy {
+public class FixedIntervalBackoff implements Backoff {
 
 	public static final long DEFAULT_PERIOD_MILLIS = 1000;
 
 	private final long intervalMillis;
 
-	public FixedIntervalRetryPolicy() {
+	public FixedIntervalBackoff() {
 		this(DEFAULT_PERIOD_MILLIS);
 	}
 
-	public FixedIntervalRetryPolicy(long intervalMillis) {
+	public FixedIntervalBackoff(long intervalMillis) {
 		this.intervalMillis = intervalMillis;
 	}
 

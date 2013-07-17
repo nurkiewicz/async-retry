@@ -14,4 +14,6 @@ public interface FaultyService {
 
 	BigDecimal calculateSum(int retry);
 
+	void withFlag(boolean flag);
+
 }
