@@ -1,10 +1,10 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
-import com.blogspot.nurkiewicz.asyncretry.policy.NeverRetryPolicy;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -15,7 +15,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @author Tomasz Nurkiewicz
  * @since 7/15/13, 11:06 PM
  */
-public class AsyncRetryExecutor {
+public class AsyncRetryExecutor implements RetryExecutor {
 
 	private final ScheduledExecutorService scheduler;
 	private final boolean fixedDelay;
@@ -35,11 +35,21 @@ public class AsyncRetryExecutor {
 		this.fixedDelay = fixedDelay;
 	}
 
-	public <V> CompletableFuture<V> doWithRetry(Supplier<V> function) {
-		return doWithRetry(r -> function.get());
+	@Override
+	public CompletableFuture<Void> doWithRetry(Consumer<RetryContext> function) {
+		return getWithRetry(context -> {
+			function.accept(context);
+			return null;
+		});
 	}
 
-	public <V> CompletableFuture<V> doWithRetry(Function<RetryContext, V> function) {
+	@Override
+	public <V> CompletableFuture<V> getWithRetry(Supplier<V> function) {
+		return getWithRetry(context -> function.get());
+	}
+
+	@Override
+	public <V> CompletableFuture<V> getWithRetry(Function<RetryContext, V> function) {
 		return scheduleImmediately(function);
 	}
 
@@ -118,7 +128,7 @@ public class AsyncRetryExecutor {
 	}
 
 	public AsyncRetryExecutor dontRetry() {
-		return this.withRetryPolicy(new NeverRetryPolicy());
+		return this.withRetryPolicy(this.retryPolicy.dontRetry());
 	}
 
 }
