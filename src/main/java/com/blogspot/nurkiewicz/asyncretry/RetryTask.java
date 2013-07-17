@@ -33,7 +33,7 @@ class RetryTask<V> implements Runnable {
 			final V result = userTask.apply(context);
 			future.complete(result);
 		} catch(AbortRetryException abortEx) {
-			completeExceptionally(context.nextRetry(abortEx));
+			completeExceptionally(context.getRetryCount(), abortEx);
 		} catch(Throwable t) {
 			handleThrowable(t, System.currentTimeMillis() - startTime);
 		}
@@ -46,18 +46,17 @@ class RetryTask<V> implements Runnable {
 			final long delay = calculateNextDelay(taskDurationMillis, nextRetryContext, retryPolicy);
 			retryWithDelay(nextRetryContext, delay);
 		} else {
-			completeExceptionally(nextRetryContext);
+			completeExceptionally(context.getRetryCount(), t);
 		}
+	}
+
+	private void completeExceptionally(int retryCount, Throwable lastCause) {
+		future.completeExceptionally(new TooManyRetriesException(retryCount, lastCause));
 	}
 
 	private long calculateNextDelay(long taskDurationMillis, AsyncRetryContext nextRetryContext, RetryPolicy retryPolicy) {
 		final long delay = retryPolicy.delayMillis(nextRetryContext);
 		return delay - (parent.isFixedDelay()? taskDurationMillis : 0);
-	}
-
-	private void completeExceptionally(AsyncRetryContext nextRetryContext) {
-		final Exception ex = new RuntimeException("Too many retries: " + nextRetryContext.getRetryCount(), nextRetryContext.getLastThrowable());
-		future.completeExceptionally(ex);
 	}
 
 	private void retryWithDelay(AsyncRetryContext nextRetryContext, long delay) {

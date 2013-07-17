@@ -7,5 +7,6 @@ package com.blogspot.nurkiewicz.asyncretry;
 public interface FaultyService {
 
 	int alwaysSucceeds();
+	String sometimesFails();
 
 }

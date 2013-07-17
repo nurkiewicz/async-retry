@@ -23,6 +23,6 @@ public class MaxRetriesPolicy extends RetryPolicyWrapper {
 
 	@Override
 	public boolean shouldContinue(RetryContext context) {
-		return target.shouldContinue(context) && context.getRetryCount() < maxRetries;
+		return target.shouldContinue(context) && context.getRetryCount() <= maxRetries;
 	}
 }
