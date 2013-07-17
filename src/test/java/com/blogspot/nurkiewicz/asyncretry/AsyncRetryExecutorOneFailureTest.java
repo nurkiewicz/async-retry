@@ -62,6 +62,21 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 	}
 
 	@Test
+	public void shouldSucceedWhenOnlyOneRetryAllowed() throws Exception {
+		//given
+		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).withMaxRetries(1);
+		given(serviceMock.sometimesFails()).
+				willThrow(IllegalStateException.class).
+				willReturn("Foo");
+
+		//when
+		final CompletableFuture<String> future = executor.getWithRetry(serviceMock::sometimesFails);
+
+		//then
+		assertThat(future.get()).isEqualTo("Foo");
+	}
+
+	@Test
 	public void shouldRetryOnceIfFirstExecutionThrowsException() throws Exception {
 		//given
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock);
