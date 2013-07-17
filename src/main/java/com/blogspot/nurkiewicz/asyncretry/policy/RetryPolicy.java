@@ -58,8 +58,11 @@ public interface RetryPolicy {
 		return new BoundedMaxDelayPolicy(this, maxDelayMillis);
 	}
 
+	default RetryPolicy dontRetry() {
+		return withMaxRetries(0);
+	}
+
 	default RetryPolicy withMaxRetries(int times) {
 		return new MaxRetriesPolicy(this, times);
 	}
-
 }
