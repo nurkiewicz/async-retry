@@ -31,10 +31,17 @@ public class AbstractBaseTestCase {
 	}
 
 	private void setupMocks() {
-		given(schedulerMock.schedule((Runnable)notNull(), anyLong(), eq(TimeUnit.MILLISECONDS))).willAnswer(invocation -> {
+		given(schedulerMock.schedule(notNullRunnable(), anyLong(), eq(TimeUnit.MILLISECONDS))).willAnswer(invocation -> {
 			((Runnable) invocation.getArguments()[0]).run();
 			return null;
 		});
 	}
 
+	protected Runnable notNullRunnable() {
+		return (Runnable) notNull();
+	}
+
+	protected TimeUnit millis() {
+		return eq(TimeUnit.MILLISECONDS);
+	}
 }

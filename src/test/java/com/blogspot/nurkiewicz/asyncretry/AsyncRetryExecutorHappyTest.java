@@ -27,7 +27,7 @@ public class AsyncRetryExecutorHappyTest extends AbstractBaseTestCase {
 		executor.doWithRetry(ctx -> serviceMock.alwaysSucceeds());
 
 		//then
-		verify(schedulerMock).schedule((Runnable) notNull(), eq(0L), eq(TimeUnit.MILLISECONDS));
+		verify(schedulerMock).schedule(notNullRunnable(), eq(0L), millis());
 		verifyNoMoreInteractions(schedulerMock);
 	}
 
