@@ -19,8 +19,6 @@ import static org.mockito.Mockito.*;
  */
 public class AsyncRetryExecutorManyFailuresTest extends AbstractBaseTestCase {
 
-	public static final String DON_T_PANIC = "Don't panic!";
-
 	@Test
 	public void shouldRethrowIfFirstFewExecutionsThrow() throws Exception {
 		//given

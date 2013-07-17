@@ -8,15 +8,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.notNull;
+import static org.mockito.Matchers.*;
 
 /**
  * @author Tomasz Nurkiewicz
  * @since 5/10/13, 9:56 PM
  */
 public class AbstractBaseTestCase {
+
+	public static final String DON_T_PANIC = "Don't panic!";
 
 	@Mock
 	protected ScheduledExecutorService schedulerMock;
