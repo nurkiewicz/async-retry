@@ -47,8 +47,7 @@ public class AsyncRetryContextTest extends AbstractBaseTestCase {
 
 		//then
 		final InOrder order = inOrder(serviceMock);
-		order.verify(serviceMock).withFlag(true);
-		order.verify(serviceMock).withFlag(true);
+		order.verify(serviceMock, times(2)).withFlag(true);
 		order.verify(serviceMock).withFlag(false);
 		order.verifyNoMoreInteractions();
 	}

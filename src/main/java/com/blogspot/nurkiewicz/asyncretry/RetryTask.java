@@ -16,7 +16,7 @@ class RetryTask<V> implements Runnable {
 	private final AsyncRetryExecutor parent;
 
 	public RetryTask(Function<RetryContext, V> userTask, AsyncRetryExecutor parent) {
-		this(userTask, new AsyncRetryContext(), new CompletableFuture<>(), parent);
+		this(userTask, new AsyncRetryContext(parent.getRetryPolicy()), new CompletableFuture<>(), parent);
 	}
 
 	public RetryTask(Function<RetryContext, V> userTask, AsyncRetryContext context, CompletableFuture<V> future, AsyncRetryExecutor parent) {
