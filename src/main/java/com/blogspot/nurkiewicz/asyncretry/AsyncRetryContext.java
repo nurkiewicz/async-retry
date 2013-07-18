@@ -2,7 +2,9 @@ package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 
-class AsyncRetryContext implements RetryContext {
+import java.util.Objects;
+
+public class AsyncRetryContext implements RetryContext {
 
 	private final RetryPolicy retryPolicy;
 	private final int retry;
@@ -13,7 +15,7 @@ class AsyncRetryContext implements RetryContext {
 	}
 
 	public AsyncRetryContext(RetryPolicy retryPolicy, int retry, Throwable lastThrowable) {
-		this.retryPolicy = retryPolicy;
+		this.retryPolicy = Objects.requireNonNull(retryPolicy);
 		this.retry = retry;
 		this.lastThrowable = lastThrowable;
 	}

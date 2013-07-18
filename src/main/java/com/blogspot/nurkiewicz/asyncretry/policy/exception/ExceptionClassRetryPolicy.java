@@ -10,7 +10,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 
 /**
  * @author Tomasz Nurkiewicz
@@ -18,23 +17,27 @@ import static java.util.Collections.singleton;
  */
 public class ExceptionClassRetryPolicy extends RetryPolicyWrapper {
 
-	private final Set<Class<Throwable>> retryFor;
-	private final Set<Class<Throwable>> abortFor;
+	private final Set<Class<? extends Throwable>> retryFor;
+	private final Set<Class<? extends Throwable>> abortFor;
 
-	public ExceptionClassRetryPolicy(RetryPolicy target, Set<Class<Throwable>> retryFor, Set<Class<Throwable>> abortFor) {
+	public ExceptionClassRetryPolicy(RetryPolicy target) {
+		this(target, Collections.emptySet(), Collections.emptySet());
+	}
+
+	public ExceptionClassRetryPolicy(RetryPolicy target, Set<Class<? extends Throwable>> retryFor, Set<Class<? extends Throwable>> abortFor) {
 		super(target);
 		this.retryFor = retryFor;
 		this.abortFor = abortFor;
 	}
 
-	public static ExceptionClassRetryPolicy retryFor(RetryPolicy target, Class<Throwable> retryForThrowable) {
+	public static ExceptionClassRetryPolicy retryFor(RetryPolicy target, Class<? extends Throwable> retryForThrowable) {
 		if (target instanceof ExceptionClassRetryPolicy) {
 			return mergeRetryForWithExisting((ExceptionClassRetryPolicy) target, retryForThrowable);
 		}
-		return new ExceptionClassRetryPolicy(target, singleton(retryForThrowable), emptySet());
+		return new ExceptionClassRetryPolicy(target, Collections.<Class<? extends Throwable>>singleton(retryForThrowable), emptySet());
 	}
 
-	private static ExceptionClassRetryPolicy mergeRetryForWithExisting(ExceptionClassRetryPolicy topTarget, Class<Throwable> retryForThrowable) {
+	private static ExceptionClassRetryPolicy mergeRetryForWithExisting(ExceptionClassRetryPolicy topTarget, Class<? extends Throwable> retryForThrowable) {
 		return new ExceptionClassRetryPolicy(
 				topTarget.target,
 				setPlusElem(topTarget.retryFor, retryForThrowable),
@@ -42,14 +45,14 @@ public class ExceptionClassRetryPolicy extends RetryPolicyWrapper {
 		);
 	}
 
-	public static ExceptionClassRetryPolicy abortFor(RetryPolicy target, Class<Throwable> abortForThrowable) {
+	public static ExceptionClassRetryPolicy abortFor(RetryPolicy target, Class<? extends Throwable> abortForThrowable) {
 		if (target instanceof ExceptionClassRetryPolicy) {
 			return mergeAbortForWithExisting((ExceptionClassRetryPolicy) target, abortForThrowable);
 		}
-		return new ExceptionClassRetryPolicy(target, emptySet(), singleton(abortForThrowable));
+		return new ExceptionClassRetryPolicy(target, emptySet(), Collections.<Class<? extends Throwable>>singleton(abortForThrowable));
 	}
 
-	private static ExceptionClassRetryPolicy mergeAbortForWithExisting(ExceptionClassRetryPolicy topTarget, Class<Throwable> abortForThrowable) {
+	private static ExceptionClassRetryPolicy mergeAbortForWithExisting(ExceptionClassRetryPolicy topTarget, Class<? extends Throwable> abortForThrowable) {
 		return new ExceptionClassRetryPolicy(
 				topTarget.target,
 				topTarget.retryFor,
@@ -70,14 +73,14 @@ public class ExceptionClassRetryPolicy extends RetryPolicyWrapper {
 		}
 		final Class<? extends Throwable > e = context.getLastThrowable().getClass();
 		if (abortFor.isEmpty()) {
-			return matches(e, retryFor);
+			return retryFor.isEmpty() || matches(e, retryFor);
 		} else {
 			return !matches(e, abortFor) &&
 					(retryFor.isEmpty() || matches(e, retryFor));
 		}
 	}
 
-	private static boolean matches(Class<? extends Throwable> throwable, Set<Class<Throwable>> set) {
+	private static boolean matches(Class<? extends Throwable> throwable, Set<Class<? extends Throwable>> set) {
 		return set.stream().anyMatch(c -> c.isAssignableFrom(throwable));
 	}
 }
