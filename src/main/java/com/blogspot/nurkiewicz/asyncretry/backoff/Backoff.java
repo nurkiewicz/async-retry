@@ -37,11 +37,11 @@ public interface Backoff {
 	}
 
 	default Backoff withMaxDelay(long maxDelayMillis) {
-		return new BoundedMaxDelayPolicy(this, maxDelayMillis);
+		return new BoundedMaxBackoff(this, maxDelayMillis);
 	}
 
 	default Backoff withMaxDelay() {
-		return new BoundedMaxDelayPolicy(this);
+		return new BoundedMaxBackoff(this);
 	}
 
 }
