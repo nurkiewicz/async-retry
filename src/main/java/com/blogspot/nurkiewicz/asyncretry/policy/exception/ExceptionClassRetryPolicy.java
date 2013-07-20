@@ -73,14 +73,13 @@ public class ExceptionClassRetryPolicy extends RetryPolicyWrapper {
 		}
 		final Class<? extends Throwable > e = context.getLastThrowable().getClass();
 		if (abortFor.isEmpty()) {
-			return retryFor.isEmpty() || matches(e, retryFor);
+			return matches(e, retryFor);
 		} else {
-			return !matches(e, abortFor) &&
-					(retryFor.isEmpty() || matches(e, retryFor));
+			return !matches(e, abortFor) && matches(e, retryFor);
 		}
 	}
 
 	private static boolean matches(Class<? extends Throwable> throwable, Set<Class<? extends Throwable>> set) {
-		return set.stream().anyMatch(c -> c.isAssignableFrom(throwable));
+		return set.isEmpty() || set.stream().anyMatch(c -> c.isAssignableFrom(throwable));
 	}
 }
