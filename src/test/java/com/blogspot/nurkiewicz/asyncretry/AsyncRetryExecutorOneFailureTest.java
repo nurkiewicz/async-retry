@@ -58,8 +58,8 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 		given(serviceMock.sometimesFails()).
 				willThrow(
 						new IllegalArgumentException("First"),
-						new IllegalArgumentException("Second"),
-						new AbortRetryException()
+						new IllegalStateException("Second"),
+						new AbortRetryException("Ignored")
 				);
 
 		//when
@@ -71,7 +71,7 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 			future.get();
 			failBecauseExceptionWasNotThrown(ExecutionException.class);
 		} catch (ExecutionException e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
 			assertThat(e.getCause().getMessage()).isEqualTo("Second");
 		}
 	}

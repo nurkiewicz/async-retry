@@ -1,6 +1,8 @@
 package com.blogspot.nurkiewicz.asyncretry.policy.exception;
 
+import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
+import org.mockito.Mock;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -8,12 +10,18 @@ import java.net.SocketException;
 import java.util.concurrent.TimeoutException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.notNull;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Tomasz Nurkiewicz
  * @since 7/18/13, 10:56 PM
  */
 public class ExceptionClassRetryPolicyDefaultsTest extends AbstractExceptionClassRetryPolicyTest {
+
+	@Mock
+	private RetryPolicy retryPolicyMock;
 
 	@Test
 	public void byDefaultShouldRetryOnAllExceptions() throws Exception {
@@ -37,6 +45,20 @@ public class ExceptionClassRetryPolicyDefaultsTest extends AbstractExceptionClas
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isTrue();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isTrue();
 		assertThat(shouldRetryOn(policy, new NoClassDefFoundError())).isTrue();
+	}
+
+	@Test
+	public void shouldFirstAskChildPolicyAndAbortIfItAborts() throws Exception {
+		//given
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(retryPolicyMock);
+		given(retryPolicyMock.shouldContinue((RetryContext) notNull())).willReturn(false);
+
+		//when
+		final boolean shouldRetry = shouldRetryOn(policy, new RuntimeException());
+
+		//then
+		assertThat(shouldRetry).isFalse();
+		verify(retryPolicyMock).shouldContinue((RetryContext) notNull());
 	}
 }
 

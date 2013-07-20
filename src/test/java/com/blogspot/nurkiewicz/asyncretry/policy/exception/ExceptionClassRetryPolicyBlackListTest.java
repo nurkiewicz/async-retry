@@ -43,8 +43,7 @@ public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionCla
 
 	@Test
 	public void shouldRetryIfErrorNotAborting() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortFor(ConnectException.class);
+		final RetryPolicy policy = always.abortFor(ConnectException.class);
 
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isTrue();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isTrue();

@@ -19,8 +19,7 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 
 	@Test
 	public void retryOnExceptionExplicitly() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(Exception.class);
+		final RetryPolicy policy = always.retryFor(Exception.class);
 
 		assertThat(shouldRetryOn(policy, new Exception())).isTrue();
 		assertThat(shouldRetryOn(policy, new RuntimeException())).isTrue();
