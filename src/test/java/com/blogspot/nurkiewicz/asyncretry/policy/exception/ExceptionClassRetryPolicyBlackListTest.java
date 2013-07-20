@@ -3,6 +3,7 @@ package com.blogspot.nurkiewicz.asyncretry.policy.exception;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.testng.annotations.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketException;
@@ -48,6 +49,47 @@ public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionCla
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isTrue();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isTrue();
 		assertThat(shouldRetryOn(policy, new NoClassDefFoundError())).isTrue();
+	}
+
+	@Test
+	public void shouldAbortIfBlackListedException() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				abortFor(NullPointerException.class);
+
+		assertThat(shouldRetryOn(policy, new NullPointerException())).isFalse();
+	}
+
+	@Test
+	public void shouldAbortForSubclassesOfBlackListedException() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				abortFor(IOException.class);
+
+		assertThat(shouldRetryOn(policy, new FileNotFoundException())).isFalse();
+		assertThat(shouldRetryOn(policy, new SocketException())).isFalse();
+		assertThat(shouldRetryOn(policy, new ConnectException())).isFalse();
+	}
+
+	@Test
+	public void shouldAbortForAnyBlackListedExceptions() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				abortFor(NullPointerException.class).
+				abortFor(OutOfMemoryError.class).
+				abortFor(StackOverflowError.class);
+
+		assertThat(shouldRetryOn(policy, new NullPointerException())).isFalse();
+		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
+		assertThat(shouldRetryOn(policy, new StackOverflowError())).isFalse();
+	}
+
+	@Test
+	public void shouldAbortForSubclassesOfAnyOfBlackListedExceptions() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				abortFor(IOException.class).
+				abortFor(RuntimeException.class);
+
+		assertThat(shouldRetryOn(policy, new FileNotFoundException())).isFalse();
+		assertThat(shouldRetryOn(policy, new ConnectException())).isFalse();
+		assertThat(shouldRetryOn(policy, new NullPointerException())).isFalse();
 	}
 
 }
