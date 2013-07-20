@@ -12,6 +12,9 @@ public class ExponentialDelayBackoff implements Backoff {
 	private final double multiplier;
 
 	public ExponentialDelayBackoff(long initialDelayMillis, double multiplier) {
+		if (initialDelayMillis <= 0) {
+			throw new IllegalArgumentException("Initial delay must be positive but was: " + initialDelayMillis);
+		}
 		this.initialDelayMillis = initialDelayMillis;
 		this.multiplier = multiplier;
 	}
