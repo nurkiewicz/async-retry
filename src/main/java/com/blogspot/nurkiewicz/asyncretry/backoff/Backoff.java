@@ -8,7 +8,7 @@ import com.blogspot.nurkiewicz.asyncretry.RetryContext;
  */
 public interface Backoff {
 
-	public static final Backoff DEFAULT = new FixedIntervalBackoff();
+	Backoff DEFAULT = new FixedIntervalBackoff();
 
 	long delayMillis(RetryContext context);
 
@@ -35,7 +35,5 @@ public interface Backoff {
 	default Backoff withMaxDelay(long maxDelayMillis) {
 		return new BoundedMaxDelayPolicy(this, maxDelayMillis);
 	}
-
-
 
 }
