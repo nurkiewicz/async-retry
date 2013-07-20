@@ -50,6 +50,10 @@ public class AbstractBaseTestCase {
 		return eq(TimeUnit.MILLISECONDS);
 	}
 
+	protected RetryContext anyRetry() {
+		return retry(1);
+	}
+
 	protected RetryContext retry(int ret) {
 		return new AsyncRetryContext(RetryPolicy.DEFAULT, ret, new Exception());
 	}
