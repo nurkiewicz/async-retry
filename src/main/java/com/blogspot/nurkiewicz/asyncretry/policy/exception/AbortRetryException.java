@@ -9,7 +9,4 @@ public class AbortRetryException extends RuntimeException {
 	public AbortRetryException() {
 	}
 
-	public AbortRetryException(String message) {
-		super(message);
-	}
 }
