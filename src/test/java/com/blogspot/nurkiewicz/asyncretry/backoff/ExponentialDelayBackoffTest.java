@@ -1,9 +1,6 @@
 package com.blogspot.nurkiewicz.asyncretry.backoff;
 
 import com.blogspot.nurkiewicz.asyncretry.AbstractBaseTestCase;
-import com.blogspot.nurkiewicz.asyncretry.AsyncRetryContext;
-import com.blogspot.nurkiewicz.asyncretry.RetryContext;
-import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.testng.annotations.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -48,10 +45,5 @@ public class ExponentialDelayBackoffTest extends AbstractBaseTestCase {
 		assertThat(third).isEqualTo(2 * 2);
 		assertThat(fourth).isEqualTo(2 * 2 * 2);
 	}
-
-	private RetryContext retry(int ret) {
-		return new AsyncRetryContext(RetryPolicy.DEFAULT, ret, new Exception());
-	}
-
 
 }

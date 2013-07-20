@@ -1,5 +1,6 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.testng.annotations.BeforeMethod;
@@ -48,4 +49,9 @@ public class AbstractBaseTestCase {
 	protected TimeUnit millis() {
 		return eq(TimeUnit.MILLISECONDS);
 	}
+
+	protected RetryContext retry(int ret) {
+		return new AsyncRetryContext(RetryPolicy.DEFAULT, ret, new Exception());
+	}
+
 }
