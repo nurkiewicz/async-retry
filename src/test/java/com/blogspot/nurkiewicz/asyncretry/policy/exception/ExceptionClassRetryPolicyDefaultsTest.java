@@ -1,6 +1,5 @@
 package com.blogspot.nurkiewicz.asyncretry.policy.exception;
 
-import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.mockito.Mock;
 import org.testng.annotations.Test;
@@ -11,7 +10,6 @@ import java.util.concurrent.TimeoutException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -51,14 +49,14 @@ public class ExceptionClassRetryPolicyDefaultsTest extends AbstractExceptionClas
 	public void shouldFirstAskChildPolicyAndAbortIfItAborts() throws Exception {
 		//given
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(retryPolicyMock);
-		given(retryPolicyMock.shouldContinue((RetryContext) notNull())).willReturn(false);
+		given(retryPolicyMock.shouldContinue(notNullRetryContext())).willReturn(false);
 
 		//when
 		final boolean shouldRetry = shouldRetryOn(policy, new RuntimeException());
 
 		//then
 		assertThat(shouldRetry).isFalse();
-		verify(retryPolicyMock).shouldContinue((RetryContext) notNull());
+		verify(retryPolicyMock).shouldContinue(notNullRetryContext());
 	}
 }
 

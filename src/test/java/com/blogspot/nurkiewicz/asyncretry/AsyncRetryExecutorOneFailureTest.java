@@ -59,7 +59,7 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 				willThrow(
 						new IllegalArgumentException("First"),
 						new IllegalStateException("Second"),
-						new AbortRetryException("Ignored")
+						new AbortRetryException()
 				);
 
 		//when

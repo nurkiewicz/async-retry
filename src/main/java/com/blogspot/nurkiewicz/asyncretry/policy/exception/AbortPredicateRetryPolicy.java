@@ -22,11 +22,7 @@ public class AbortPredicateRetryPolicy extends RetryPolicyWrapper {
 	@Override
 	public boolean shouldContinue(RetryContext context) {
 		return !abortPredicate.test(context.getLastThrowable()) &&
-				tryNestedPolicyIfAlsoPredicate(context);
-	}
-
-	private boolean tryNestedPolicyIfAlsoPredicate(RetryContext context) {
-		return target instanceof AbortPredicateRetryPolicy &&
 				target.shouldContinue(context);
 	}
+
 }

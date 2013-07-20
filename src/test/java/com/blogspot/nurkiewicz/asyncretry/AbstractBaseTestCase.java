@@ -41,6 +41,10 @@ public class AbstractBaseTestCase {
 		return (Runnable) notNull();
 	}
 
+	protected RetryContext notNullRetryContext() {
+		return (RetryContext) notNull();
+	}
+
 	protected TimeUnit millis() {
 		return eq(TimeUnit.MILLISECONDS);
 	}
