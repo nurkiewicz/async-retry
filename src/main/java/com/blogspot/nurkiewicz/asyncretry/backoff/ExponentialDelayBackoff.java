@@ -6,12 +6,12 @@ import com.blogspot.nurkiewicz.asyncretry.RetryContext;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 6:17 PM
  */
-public class ExponentialDelayRetryPolicy implements Backoff {
+public class ExponentialDelayBackoff implements Backoff {
 
 	private final long initialDelayMillis;
 	private final double multiplier;
 
-	public ExponentialDelayRetryPolicy(long initialDelayMillis, double multiplier) {
+	public ExponentialDelayBackoff(long initialDelayMillis, double multiplier) {
 		this.initialDelayMillis = initialDelayMillis;
 		this.multiplier = multiplier;
 	}
