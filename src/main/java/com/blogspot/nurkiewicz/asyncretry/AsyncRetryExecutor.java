@@ -67,9 +67,13 @@ public class AsyncRetryExecutor implements RetryExecutor {
 	}
 
 	private <V> CompletableFuture<V> scheduleImmediately(Function<RetryContext, V> function) {
-		final RetryTask<V> task = new RetryTask<>(function, this);
+		final RetryTask<V> task = createTask(function);
 		scheduler.schedule(task, 0, MILLISECONDS);
 		return task.getFuture();
+	}
+
+	protected <V> RetryTask<V> createTask(Function<RetryContext, V> function) {
+		return new RetryTask<>(function, this);
 	}
 
 	public ScheduledExecutorService getScheduler() {
