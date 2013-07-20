@@ -29,7 +29,7 @@ public interface RetryPolicy {
 	}
 
 	default RetryPolicy dontRetry() {
-		return withMaxRetries(0);
+		return new NeverRetryPolicy();
 	}
 
 	default RetryPolicy withMaxRetries(int times) {
