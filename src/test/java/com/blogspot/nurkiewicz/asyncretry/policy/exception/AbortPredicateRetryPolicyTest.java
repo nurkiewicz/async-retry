@@ -1,5 +1,6 @@
 package com.blogspot.nurkiewicz.asyncretry.policy.exception;
 
+import com.blogspot.nurkiewicz.asyncretry.AsyncRetryContext;
 import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.mockito.Mock;
@@ -58,6 +59,21 @@ public class AbortPredicateRetryPolicyTest extends AbstractExceptionClassRetryPo
 
 		//then
 		assertThat(shouldRetry).isFalse();
+	}
+
+	@Test
+	public void shouldExamineExceptionAndDecide() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new AbortPredicateRetryPolicy(retryPolicyMock, t -> t.getMessage().contains("abort"));
+		given(retryPolicyMock.shouldContinue(notNullRetryContext())).willReturn(true);
+
+		//when
+		final boolean abort = retryPolicy.shouldContinue(new AsyncRetryContext(retryPolicy, 1, new RuntimeException("abort")));
+		final boolean retry = retryPolicy.shouldContinue(new AsyncRetryContext(retryPolicy, 1, new RuntimeException("normal")));
+
+		//then
+		assertThat(abort).isFalse();
+		assertThat(retry).isTrue();
 	}
 
 }
