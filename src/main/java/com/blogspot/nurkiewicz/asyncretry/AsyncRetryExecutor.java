@@ -1,6 +1,7 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.backoff.Backoff;
+import com.blogspot.nurkiewicz.asyncretry.backoff.ExponentialDelayBackoff;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 
 import java.util.Objects;
@@ -92,6 +93,11 @@ public class AsyncRetryExecutor implements RetryExecutor {
 	}
 
 	public AsyncRetryExecutor withRetryPolicy(RetryPolicy retryPolicy) {
+		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
+	}
+
+	public AsyncRetryExecutor withExponentialBackoff(long initialDelayMillis, double multiplier) {
+		final ExponentialDelayBackoff backoff = new ExponentialDelayBackoff(initialDelayMillis, multiplier);
 		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
