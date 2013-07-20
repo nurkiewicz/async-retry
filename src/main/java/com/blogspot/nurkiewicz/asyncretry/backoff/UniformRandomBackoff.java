@@ -6,7 +6,7 @@ import java.util.Random;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 7:26 PM
  */
-public class UniformRandomBackoff extends RandomDelayBackoff {
+public class UniformRandomBackoff extends RandomBackoff {
 
 	/**
 	 * Randomly between +/- 100ms

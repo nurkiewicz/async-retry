@@ -6,7 +6,7 @@ import java.util.Random;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 7:49 PM
  */
-public class ProportionalRandomBackoff extends RandomDelayBackoff {
+public class ProportionalRandomBackoff extends RandomBackoff {
 
 	/**
 	 * Randomly up to +/- 10%
@@ -36,6 +36,6 @@ public class ProportionalRandomBackoff extends RandomDelayBackoff {
 	@Override
 	long addRandomJitter(long initialDelay) {
 		final double randomMultiplier = (1 - 2 * random().nextDouble()) * multiplier;
-		return (long) (initialDelay * randomMultiplier);
+		return (long) (initialDelay * (1 + randomMultiplier));
 	}
 }

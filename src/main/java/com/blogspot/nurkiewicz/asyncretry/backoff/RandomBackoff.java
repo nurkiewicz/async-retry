@@ -10,19 +10,19 @@ import java.util.function.Supplier;
  * @author Tomasz Nurkiewicz
  * @since 7/16/13, 7:30 PM
  */
-abstract public class RandomDelayBackoff extends BackoffWrapper {
+abstract public class RandomBackoff extends BackoffWrapper {
 
 	private final Supplier<Random> randomSource;
 
-	protected RandomDelayBackoff(Backoff target) {
+	protected RandomBackoff(Backoff target) {
 		this(target, ThreadLocalRandom::current);
 	}
 
-	protected RandomDelayBackoff(Backoff target, Random randomSource) {
+	protected RandomBackoff(Backoff target, Random randomSource) {
 		this(target, () -> randomSource);
 	}
 
-	private RandomDelayBackoff(Backoff target, Supplier<Random> randomSource) {
+	private RandomBackoff(Backoff target, Supplier<Random> randomSource) {
 		super(target);
 		this.randomSource = randomSource;
 	}
