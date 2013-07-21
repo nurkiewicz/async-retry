@@ -114,15 +114,20 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
+	public AsyncRetryExecutor withFixedBackoff(long delayMillis) {
+		final FixedIntervalBackoff backoff = new FixedIntervalBackoff(delayMillis);
+		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
+	}
+
 	public AsyncRetryExecutor withBackoff(Backoff backoff) {
 		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
-	public AsyncRetryExecutor withFixedDelay() {
+	public AsyncRetryExecutor withFixedRate() {
 		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, true);
 	}
 
-	public AsyncRetryExecutor withFixedDelay(boolean fixedDelay) {
+	public AsyncRetryExecutor withFixedRate(boolean fixedDelay) {
 		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
