@@ -22,8 +22,7 @@ public class AsyncRetryJob<V> extends RetryJob<V> {
 	}
 
 	@Override
-	public void run() {
-		final long startTime = System.currentTimeMillis();
+	public void run(long startTime) {
 		try {
 			userTask.call(context).
 					exceptionally(throwable -> {

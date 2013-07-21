@@ -18,8 +18,7 @@ class SyncRetryJob<V> extends RetryJob<V> {
 	}
 
 	@Override
-	public void run() {
-		final long startTime = System.currentTimeMillis();
+	public void run(long startTime) {
 		try {
 			final V result = userTask.call(context);
 			complete(result, System.currentTimeMillis() - startTime);

@@ -83,6 +83,13 @@ public abstract class RetryJob<V> implements Runnable {
 				context.getRetryCount(), duration, delay, nextRunDate, context.getLastThrowable());
 	}
 
+	@Override
+	public void run() {
+		run(System.currentTimeMillis());
+	}
+
+	protected abstract void run(long startTime);
+
 	protected abstract RetryJob<V> nextTask(AsyncRetryContext nextRetryContext);
 
 	protected void complete(V result, long duration) {
