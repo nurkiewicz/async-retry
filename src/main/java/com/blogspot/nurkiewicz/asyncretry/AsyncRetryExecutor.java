@@ -64,17 +64,25 @@ public class AsyncRetryExecutor implements RetryExecutor {
 
 	@Override
 	public <V> CompletableFuture<V> getWithRetry(RetryCallable<V> task) {
-		return scheduleImmediately(task);
+		return scheduleImmediately(createTask(task));
 	}
 
-	private <V> CompletableFuture<V> scheduleImmediately(RetryCallable<V> function) {
-		final RetryJob<V> task = createTask(function);
-		scheduler.schedule(task, 0, MILLISECONDS);
-		return task.getFuture();
+	@Override
+	public <V> CompletableFuture<V> getFutureWithRetry(RetryCallable<CompletableFuture<V>> task) {
+		return scheduleImmediately(createFutureTask(task));
+	}
+
+	private <V> CompletableFuture<V> scheduleImmediately(RetryJob<V> job) {
+		scheduler.schedule(job, 0, MILLISECONDS);
+		return job.getFuture();
 	}
 
 	protected <V> RetryJob<V> createTask(RetryCallable<V> function) {
-		return new RetryJob<>(function, this);
+		return new SyncRetryJob<>(function, this);
+	}
+
+	protected <V> RetryJob<V> createFutureTask(RetryCallable<CompletableFuture<V>> function) {
+		return new AsyncRetryJob<>(function, this);
 	}
 
 	public ScheduledExecutorService getScheduler() {
@@ -118,11 +126,11 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
-	public AsyncRetryExecutor retryFor(Class<Throwable> retryForThrowable) {
+	public AsyncRetryExecutor retryFor(Class<? extends Throwable> retryForThrowable) {
 		return this.withRetryPolicy(retryPolicy.retryFor(retryForThrowable));
 	}
 
-	public AsyncRetryExecutor abortFor(Class<Throwable> abortForThrowable) {
+	public AsyncRetryExecutor abortFor(Class<? extends Throwable> abortForThrowable) {
 		return this.withRetryPolicy(retryPolicy.abortFor(abortForThrowable));
 	}
 

@@ -17,4 +17,6 @@ public interface RetryExecutor {
 	<V> CompletableFuture<V> getWithRetry(Callable<V> task);
 
 	<V> CompletableFuture<V> getWithRetry(RetryCallable<V> task);
+
+	<V> CompletableFuture<V> getFutureWithRetry(RetryCallable<CompletableFuture<V>> task);
 }

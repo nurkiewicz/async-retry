@@ -35,10 +35,7 @@ public class AsyncRetryExecutorManualAbortTest extends AbstractBaseTestCase {
 			future.get();
 			Assertions.failBecauseExceptionWasNotThrown(IllegalStateException.class);
 		} catch (ExecutionException e) {
-			assertThat(e.getCause()).isInstanceOf(TooManyRetriesException.class);
-			assertThat(((TooManyRetriesException) e.getCause()).getRetries()).isEqualTo(0);
-
-			final Throwable actualCause = e.getCause().getCause();
+			final Throwable actualCause = e.getCause();
 			assertThat(actualCause).isInstanceOf(IllegalStateException.class);
 			assertThat(actualCause.getMessage()).isEqualToIgnoringCase(DON_T_PANIC);
 		}

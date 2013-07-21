@@ -1,6 +1,7 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import java.math.BigDecimal;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Tomasz Nurkiewicz
@@ -15,5 +16,9 @@ public interface FaultyService {
 	BigDecimal calculateSum(int retry);
 
 	void withFlag(boolean flag);
+
+	CompletableFuture<String> safeAsync();
+
+	CompletableFuture<String> alwaysFailsAsync();
 
 }
