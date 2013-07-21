@@ -1,30 +1,30 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.backoff.Backoff;
+import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
 import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-class RetryTask<V> implements Runnable {
+class RetryJob<V> implements Runnable {
 
-	private static final Logger log = LoggerFactory.getLogger(RetryTask.class);
+	private static final Logger log = LoggerFactory.getLogger(RetryJob.class);
 
 	private final CompletableFuture<V> future;
-	private final Function<RetryContext, V> userTask;
+	private final RetryCallable<V> userTask;
 	private final AsyncRetryContext context;
 	private final AsyncRetryExecutor parent;
 
-	public RetryTask(Function<RetryContext, V> userTask, AsyncRetryExecutor parent) {
+	public RetryJob(RetryCallable<V> userTask, AsyncRetryExecutor parent) {
 		this(userTask, new AsyncRetryContext(parent.getRetryPolicy()), new CompletableFuture<>(), parent);
 	}
 
-	public RetryTask(Function<RetryContext, V> userTask, AsyncRetryContext context, CompletableFuture<V> future, AsyncRetryExecutor parent) {
+	public RetryJob(RetryCallable<V> userTask, AsyncRetryContext context, CompletableFuture<V> future, AsyncRetryExecutor parent) {
 		this.userTask = userTask;
 		this.context = context;
 		this.future = future;
@@ -35,7 +35,7 @@ class RetryTask<V> implements Runnable {
 	public void run() {
 		final long startTime = System.currentTimeMillis();
 		try {
-			final V result = userTask.apply(context);
+			final V result = userTask.call(context);
 			logSuccess(context, result, System.currentTimeMillis() - startTime);
 			future.complete(result);
 		} catch(AbortRetryException abortEx) {
@@ -83,7 +83,7 @@ class RetryTask<V> implements Runnable {
 	}
 
 	private void retryWithDelay(AsyncRetryContext nextRetryContext, long delay, long duration) {
-		final RetryTask<V> nextTask = nextTask(nextRetryContext);
+		final RetryJob<V> nextTask = nextTask(nextRetryContext);
 		parent.getScheduler().schedule(nextTask, delay, MILLISECONDS);
 		logRetry(nextRetryContext, delay, duration);
 	}
@@ -94,8 +94,8 @@ class RetryTask<V> implements Runnable {
 				context.getRetryCount(), duration, delay, nextRunDate, context.getLastThrowable());
 	}
 
-	protected RetryTask<V> nextTask(AsyncRetryContext nextRetryContext) {
-		return new RetryTask<>(userTask, nextRetryContext, future, parent);
+	protected RetryJob<V> nextTask(AsyncRetryContext nextRetryContext) {
+		return new RetryJob<>(userTask, nextRetryContext, future, parent);
 	}
 
 	public CompletableFuture<V> getFuture() {

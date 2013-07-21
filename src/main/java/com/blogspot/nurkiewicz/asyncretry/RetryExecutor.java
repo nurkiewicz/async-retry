@@ -1,18 +1,20 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
+import com.blogspot.nurkiewicz.asyncretry.function.RetryRunnable;
+
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author Tomasz Nurkiewicz
  * @since 7/17/13, 7:25 PM
  */
 public interface RetryExecutor {
-	CompletableFuture<Void> doWithRetry(Consumer<RetryContext> function);
 
-	<V> CompletableFuture<V> getWithRetry(Supplier<V> function);
+	CompletableFuture<Void> doWithRetry(RetryRunnable action);
 
-	<V> CompletableFuture<V> getWithRetry(Function<RetryContext, V> function);
+	<V> CompletableFuture<V> getWithRetry(Callable<V> task);
+
+	<V> CompletableFuture<V> getWithRetry(RetryCallable<V> task);
 }

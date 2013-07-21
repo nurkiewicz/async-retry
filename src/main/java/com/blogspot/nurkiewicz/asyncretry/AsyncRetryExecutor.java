@@ -2,15 +2,16 @@ package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.backoff.Backoff;
 import com.blogspot.nurkiewicz.asyncretry.backoff.ExponentialDelayBackoff;
+import com.blogspot.nurkiewicz.asyncretry.backoff.FixedIntervalBackoff;
+import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
+import com.blogspot.nurkiewicz.asyncretry.function.RetryRunnable;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -49,31 +50,31 @@ public class AsyncRetryExecutor implements RetryExecutor {
 	}
 
 	@Override
-	public CompletableFuture<Void> doWithRetry(Consumer<RetryContext> function) {
+	public CompletableFuture<Void> doWithRetry(RetryRunnable action) {
 		return getWithRetry(context -> {
-			function.accept(context);
+			action.run(context);
 			return null;
 		});
 	}
 
 	@Override
-	public <V> CompletableFuture<V> getWithRetry(Supplier<V> function) {
-		return getWithRetry(context -> function.get());
+	public <V> CompletableFuture<V> getWithRetry(Callable<V> task) {
+		return getWithRetry(ctx -> task.call());
 	}
 
 	@Override
-	public <V> CompletableFuture<V> getWithRetry(Function<RetryContext, V> function) {
-		return scheduleImmediately(function);
+	public <V> CompletableFuture<V> getWithRetry(RetryCallable<V> task) {
+		return scheduleImmediately(task);
 	}
 
-	private <V> CompletableFuture<V> scheduleImmediately(Function<RetryContext, V> function) {
-		final RetryTask<V> task = createTask(function);
+	private <V> CompletableFuture<V> scheduleImmediately(RetryCallable<V> function) {
+		final RetryJob<V> task = createTask(function);
 		scheduler.schedule(task, 0, MILLISECONDS);
 		return task.getFuture();
 	}
 
-	protected <V> RetryTask<V> createTask(Function<RetryContext, V> function) {
-		return new RetryTask<>(function, this);
+	protected <V> RetryJob<V> createTask(RetryCallable<V> function) {
+		return new RetryJob<>(function, this);
 	}
 
 	public ScheduledExecutorService getScheduler() {
@@ -159,6 +160,10 @@ public class AsyncRetryExecutor implements RetryExecutor {
 
 	public AsyncRetryExecutor dontRetry() {
 		return this.withRetryPolicy(this.retryPolicy.dontRetry());
+	}
+
+	public AsyncRetryExecutor noDelay() {
+		return this.withBackoff(new FixedIntervalBackoff(0));
 	}
 
 }
