@@ -1,6 +1,7 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
+import org.fest.assertions.api.Assertions;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;
 
@@ -125,6 +126,28 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 		} catch (ExecutionException e) {
 			final Throwable cause = e.getCause();
 			assertThat(cause).isInstanceOf(AbortRetryException.class);
+		}
+	}
+
+	@Test
+	public void shouldRethrowExceptionThatWasThrownFromUserTaskBeforeReturningFuture() throws Exception {
+		//given
+		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).
+				abortFor(IllegalArgumentException.class);
+		given(serviceMock.safeAsync()).willThrow(new IllegalArgumentException(DON_T_PANIC));
+
+		//when
+		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+
+		//then
+		assertThat(future.isCompletedExceptionally()).isTrue();
+
+		try {
+			future.get();
+			Assertions.failBecauseExceptionWasNotThrown(ExecutionException.class);
+		} catch (ExecutionException e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getCause()).hasMessage(DON_T_PANIC);
 		}
 	}
 
