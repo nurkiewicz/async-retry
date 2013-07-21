@@ -27,7 +27,7 @@ public abstract class RetryJob<V> implements Runnable {
 	}
 
 	protected void logSuccess(RetryContext context, V result, long duration) {
-		log.trace("Successful after {} retries, took {}ms and returned: {}", context.getRetryCount(), duration, result);
+		log.trace("Successful after {} retries, took {}ms and returned: {}", (context.getRetryCount() - 1), duration, result);
 	}
 
 	protected void handleManualAbort(AbortRetryException abortEx) {
@@ -80,7 +80,7 @@ public abstract class RetryJob<V> implements Runnable {
 	protected void logRetry(AsyncRetryContext context, long delay, long duration) {
 		final Date nextRunDate = new Date(System.currentTimeMillis() + delay);
 		log.trace("Retry {} failed after {}ms, scheduled next retry in {}ms ({})",
-				context.getRetryCount(), duration, delay, nextRunDate, context.getLastThrowable());
+				(context.getRetryCount() - 1), duration, delay, nextRunDate, context.getLastThrowable());
 	}
 
 	@Override
