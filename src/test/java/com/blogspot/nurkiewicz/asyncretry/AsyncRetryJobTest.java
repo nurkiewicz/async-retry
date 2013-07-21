@@ -85,7 +85,7 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 	public void shouldRethrowOriginalExceptionFromUserFutureCompletion() throws Exception {
 		//given
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).
-				abortFor(SocketException.class);
+				abortOn(SocketException.class);
 		given(serviceMock.safeAsync()).willReturn(
 				failedAsync(new SocketException(DON_T_PANIC))
 		);
@@ -133,7 +133,7 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 	public void shouldRethrowExceptionThatWasThrownFromUserTaskBeforeReturningFuture() throws Exception {
 		//given
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).
-				abortFor(IllegalArgumentException.class);
+				abortOn(IllegalArgumentException.class);
 		given(serviceMock.safeAsync()).willThrow(new IllegalArgumentException(DON_T_PANIC));
 
 		//when

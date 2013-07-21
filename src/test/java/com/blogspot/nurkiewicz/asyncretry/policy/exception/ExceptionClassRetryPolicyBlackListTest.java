@@ -18,9 +18,9 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionClassRetryPolicyTest {
 
 	@Test
-	public void shouldAbortForSpecifiedException() throws Exception {
+	public void shouldAbortOnSpecifiedException() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortFor(ConnectException.class);
+				abortOn(ConnectException.class);
 
 		assertThat(shouldRetryOn(policy, new ConnectException())).isFalse();
 	}
@@ -28,7 +28,7 @@ public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionCla
 	@Test
 	public void shouldRetryIfExceptionNotAborting() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortFor(ConnectException.class);
+				abortOn(ConnectException.class);
 
 		assertThat(shouldRetryOn(policy, new Exception())).isTrue();
 		assertThat(shouldRetryOn(policy, new RuntimeException())).isTrue();
@@ -43,7 +43,7 @@ public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionCla
 
 	@Test
 	public void shouldRetryIfErrorNotAborting() throws Exception {
-		final RetryPolicy policy = always.abortFor(ConnectException.class);
+		final RetryPolicy policy = always.abortOn(ConnectException.class);
 
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isTrue();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isTrue();
@@ -53,15 +53,15 @@ public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionCla
 	@Test
 	public void shouldAbortIfBlackListedException() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortFor(NullPointerException.class);
+				abortOn(NullPointerException.class);
 
 		assertThat(shouldRetryOn(policy, new NullPointerException())).isFalse();
 	}
 
 	@Test
-	public void shouldAbortForSubclassesOfBlackListedException() throws Exception {
+	public void shouldAbortOnSubclassesOfBlackListedException() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortFor(IOException.class);
+				abortOn(IOException.class);
 
 		assertThat(shouldRetryOn(policy, new FileNotFoundException())).isFalse();
 		assertThat(shouldRetryOn(policy, new SocketException())).isFalse();
@@ -69,11 +69,11 @@ public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionCla
 	}
 
 	@Test
-	public void shouldAbortForAnyBlackListedExceptions() throws Exception {
+	public void shouldAbortOnAnyBlackListedExceptions() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortFor(NullPointerException.class).
-				abortFor(OutOfMemoryError.class).
-				abortFor(StackOverflowError.class);
+				abortOn(NullPointerException.class).
+				abortOn(OutOfMemoryError.class).
+				abortOn(StackOverflowError.class);
 
 		assertThat(shouldRetryOn(policy, new NullPointerException())).isFalse();
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
@@ -81,10 +81,10 @@ public class ExceptionClassRetryPolicyBlackListTest extends AbstractExceptionCla
 	}
 
 	@Test
-	public void shouldAbortForSubclassesOfAnyOfBlackListedExceptions() throws Exception {
+	public void shouldAbortOnSubclassesOfAnyOfBlackListedExceptions() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortFor(IOException.class).
-				abortFor(RuntimeException.class);
+				abortOn(IOException.class).
+				abortOn(RuntimeException.class);
 
 		assertThat(shouldRetryOn(policy, new FileNotFoundException())).isFalse();
 		assertThat(shouldRetryOn(policy, new ConnectException())).isFalse();

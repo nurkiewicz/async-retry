@@ -126,12 +126,12 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return new AsyncRetryExecutor(scheduler, retryPolicy, backoff, fixedDelay);
 	}
 
-	public AsyncRetryExecutor retryFor(Class<? extends Throwable> retryForThrowable) {
-		return this.withRetryPolicy(retryPolicy.retryFor(retryForThrowable));
+	public AsyncRetryExecutor retryOn(Class<? extends Throwable> retryOnThrowable) {
+		return this.withRetryPolicy(retryPolicy.retryOn(retryOnThrowable));
 	}
 
-	public AsyncRetryExecutor abortFor(Class<? extends Throwable> abortForThrowable) {
-		return this.withRetryPolicy(retryPolicy.abortFor(abortForThrowable));
+	public AsyncRetryExecutor abortOn(Class<? extends Throwable> abortOnThrowable) {
+		return this.withRetryPolicy(retryPolicy.abortOn(abortOnThrowable));
 	}
 
 	public AsyncRetryExecutor abortIf(Predicate<Throwable> abortPredicate) {

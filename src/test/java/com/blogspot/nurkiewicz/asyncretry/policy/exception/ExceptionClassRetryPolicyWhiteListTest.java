@@ -19,7 +19,7 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 
 	@Test
 	public void retryOnExceptionExplicitly() throws Exception {
-		final RetryPolicy policy = always.retryFor(Exception.class);
+		final RetryPolicy policy = always.retryOn(Exception.class);
 
 		assertThat(shouldRetryOn(policy, new Exception())).isTrue();
 		assertThat(shouldRetryOn(policy, new RuntimeException())).isTrue();
@@ -35,7 +35,7 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void retryOnExceptionShouldNotRetryOnError() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(Exception.class);
+				retryOn(Exception.class);
 
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isFalse();
@@ -45,7 +45,7 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void shouldRetryOnOnlyOneSpecificException() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(OptimisticLockException.class);
+				retryOn(OptimisticLockException.class);
 
 		assertThat(shouldRetryOn(policy, new OptimisticLockException())).isTrue();
 	}
@@ -53,7 +53,7 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void shouldNotRetryOnOtherExceptionsIfOneGivenExplicitly() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(OptimisticLockException.class);
+				retryOn(OptimisticLockException.class);
 
 		assertThat(shouldRetryOn(policy, new Exception())).isFalse();
 		assertThat(shouldRetryOn(policy, new RuntimeException())).isFalse();
@@ -69,7 +69,7 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void shouldNotRetryOnErrorsIfExceptionGivenExplicitly() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(OptimisticLockException.class);
+				retryOn(OptimisticLockException.class);
 
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isFalse();
@@ -79,8 +79,8 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void shouldRetryOnAnyOfProvidedExceptions() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(OptimisticLockException.class).
-				retryFor(IOException.class);
+				retryOn(OptimisticLockException.class).
+				retryOn(IOException.class);
 
 		assertThat(shouldRetryOn(policy, new OptimisticLockException())).isTrue();
 		assertThat(shouldRetryOn(policy, new IOException())).isTrue();
@@ -89,8 +89,8 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void shouldNotRetryOnOtherExceptionsIfFewGivenExplicitly() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(OptimisticLockException.class).
-				retryFor(IOException.class);
+				retryOn(OptimisticLockException.class).
+				retryOn(IOException.class);
 
 		assertThat(shouldRetryOn(policy, new Exception())).isFalse();
 		assertThat(shouldRetryOn(policy, new RuntimeException())).isFalse();
@@ -104,8 +104,8 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void shouldNotRetryOnErrorsIfFewExceptionsGivenExplicitly() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(OptimisticLockException.class).
-				retryFor(IOException.class);
+				retryOn(OptimisticLockException.class).
+				retryOn(IOException.class);
 
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isFalse();
@@ -115,7 +115,7 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	@Test
 	public void shouldRetryWhenSubclassOfGivenExceptionThrown() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(IOException.class);
+				retryOn(IOException.class);
 
 		assertThat(shouldRetryOn(policy, new FileNotFoundException())).isTrue();
 		assertThat(shouldRetryOn(policy, new SocketException())).isTrue();
@@ -123,17 +123,17 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	}
 
 	@Test
-	public void shouldNotRetryForSiblilngExceptions() throws Exception {
+	public void shouldNotRetryOnSiblilngExceptions() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(FileNotFoundException.class);
+				retryOn(FileNotFoundException.class);
 
 		assertThat(shouldRetryOn(policy, new SocketException())).isFalse();
 	}
 
 	@Test
-	public void shouldNotRetryForSuperClassesOfGivenClass() throws Exception {
+	public void shouldNotRetryOnSuperClassesOfGivenClass() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryFor(FileNotFoundException.class);
+				retryOn(FileNotFoundException.class);
 
 		assertThat(shouldRetryOn(policy, new IOException())).isFalse();
 	}

@@ -37,7 +37,7 @@ public class AsyncRetryContextTest extends AbstractBaseTestCase {
 	}
 
 	@Test
-	public void shouldSayItWillRetryForFirstFewCases() throws Exception {
+	public void shouldSayItWillRetryOnFirstFewCases() throws Exception {
 		//given
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).withMaxRetries(2);
 		doThrow(IllegalStateException.class).when(serviceMock).withFlag(anyBoolean());
