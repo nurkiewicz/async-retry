@@ -26,7 +26,6 @@ public class AsyncRetryJob<V> extends RetryJob<V> {
 		try {
 			userTask.call(context).
 					exceptionally(throwable -> {
-						throwable.printStackTrace();
 						handleThrowable(throwable, System.currentTimeMillis() - startTime);
 						return null;
 					}).
