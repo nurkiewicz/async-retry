@@ -62,8 +62,11 @@ public abstract class RetryJob<V> implements Runnable {
 		}
 	}
 
-	protected void logFailure(AsyncRetryContext context, long duration) {
-		log.trace("Giving up after {} retries, last run took: {}ms, last exception: ", context.getRetryCount(), duration, context.getLastThrowable());
+	protected void logFailure(AsyncRetryContext nextRetryContext, long duration) {
+		log.trace("Giving up after {} retries, last run took: {}ms, last exception: ",
+				context.getRetryCount(),
+				duration,
+				nextRetryContext.getLastThrowable());
 	}
 
 	private long calculateNextDelay(long taskDurationMillis, AsyncRetryContext nextRetryContext, Backoff backoff) {
@@ -77,10 +80,14 @@ public abstract class RetryJob<V> implements Runnable {
 		logRetry(nextRetryContext, delay, duration);
 	}
 
-	protected void logRetry(AsyncRetryContext context, long delay, long duration) {
+	protected void logRetry(AsyncRetryContext nextRetryContext, long delay, long duration) {
 		final Date nextRunDate = new Date(System.currentTimeMillis() + delay);
 		log.trace("Retry {} failed after {}ms, scheduled next retry in {}ms ({})",
-				(context.getRetryCount() - 1), duration, delay, nextRunDate, context.getLastThrowable());
+				context.getRetryCount(),
+				duration,
+				delay,
+				nextRunDate,
+				nextRetryContext.getLastThrowable());
 	}
 
 	@Override
