@@ -1,7 +1,8 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Tomasz Nurkiewicz
@@ -17,8 +18,8 @@ public interface FaultyService {
 
 	void withFlag(boolean flag);
 
-	CompletableFuture<String> safeAsync();
+	ListenableFuture<String> safeAsync();
 
-	CompletableFuture<String> alwaysFailsAsync();
+	ListenableFuture<String> alwaysFailsAsync();
 
 }

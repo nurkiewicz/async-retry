@@ -1,13 +1,15 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
 import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.fest.assertions.api.Assertions;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.blogspot.nurkiewicz.asyncretry.backoff.FixedIntervalBackoff.DEFAULT_PERIOD_MILLIS;
@@ -28,10 +30,15 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 	public void shouldUnwrapUserFutureAndReturnIt() throws Exception {
 		//given
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock);
-		given(serviceMock.safeAsync()).willReturn(CompletableFuture.completedFuture("42"));
+		given(serviceMock.safeAsync()).willReturn(Futures.immediateFuture("42"));
 
 		//when
-		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+		final ListenableFuture<String> future = executor.getFutureWithRetry(new RetryCallable<ListenableFuture<String>>() {
+			@Override
+			public ListenableFuture<String> call(RetryContext context) throws Exception {
+				return serviceMock.safeAsync();
+			}
+		});
 
 		//then
 		assertThat(future.get()).isEqualTo("42");
@@ -44,11 +51,16 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 		given(serviceMock.safeAsync()).willReturn(
 				failedAsync(new SocketException("First")),
 				failedAsync(new IOException("Second")),
-				CompletableFuture.completedFuture("42")
+				Futures.immediateFuture("42")
 		);
 
 		//when
-		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+		final ListenableFuture<String> future = executor.getFutureWithRetry(new RetryCallable<ListenableFuture<String>>() {
+			@Override
+			public ListenableFuture<String> call(RetryContext context) throws Exception {
+				return serviceMock.safeAsync();
+			}
+		});
 
 		//then
 		assertThat(future.get()).isEqualTo("42");
@@ -61,11 +73,16 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 		given(serviceMock.safeAsync()).willReturn(
 				failedAsync(new SocketException("First")),
 				failedAsync(new IOException("Second")),
-				CompletableFuture.completedFuture("42")
+				Futures.immediateFuture("42")
 		);
 
 		//when
-		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+		final ListenableFuture<String> future = executor.getFutureWithRetry(new RetryCallable<ListenableFuture<String>>() {
+			@Override
+			public ListenableFuture<String> call(RetryContext context) throws Exception {
+				return serviceMock.safeAsync();
+			}
+		});
 
 		//then
 		future.get();
@@ -75,10 +92,8 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 		order.verify(schedulerMock, times(2)).schedule(notNullRunnable(), eq(DEFAULT_PERIOD_MILLIS), millis());
 	}
 
-	private CompletableFuture<String> failedAsync(Throwable throwable) {
-		final CompletableFuture<String> future = new CompletableFuture<>();
-		future.completeExceptionally(throwable);
-		return future;
+	private ListenableFuture<String> failedAsync(Throwable throwable) {
+		return Futures.immediateFailedFuture(throwable);
 	}
 
 	@Test
@@ -91,11 +106,14 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 		);
 
 		//when
-		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+		final ListenableFuture<String> future = executor.getFutureWithRetry(new RetryCallable<ListenableFuture<String>>() {
+			@Override
+			public ListenableFuture<String> call(RetryContext context) throws Exception {
+				return serviceMock.safeAsync();
+			}
+		});
 
 		//then
-		assertThat(future.isCompletedExceptionally()).isTrue();
-
 		try {
 			future.get();
 			failBecauseExceptionWasNotThrown(ExecutionException.class);
@@ -115,11 +133,14 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 		);
 
 		//when
-		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+		final ListenableFuture<String> future = executor.getFutureWithRetry(new RetryCallable<ListenableFuture<String>>() {
+			@Override
+			public ListenableFuture<String> call(RetryContext context) throws Exception {
+				return serviceMock.safeAsync();
+			}
+		});
 
 		//then
-		assertThat(future.isCompletedExceptionally()).isTrue();
-
 		try {
 			future.get();
 			failBecauseExceptionWasNotThrown(ExecutionException.class);
@@ -137,11 +158,14 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 		given(serviceMock.safeAsync()).willThrow(new IllegalArgumentException(DON_T_PANIC));
 
 		//when
-		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+		final ListenableFuture<String> future = executor.getFutureWithRetry(new RetryCallable<ListenableFuture<String>>() {
+			@Override
+			public ListenableFuture<String> call(RetryContext context) throws Exception {
+				return serviceMock.safeAsync();
+			}
+		});
 
 		//then
-		assertThat(future.isCompletedExceptionally()).isTrue();
-
 		try {
 			future.get();
 			Assertions.failBecauseExceptionWasNotThrown(ExecutionException.class);

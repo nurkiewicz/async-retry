@@ -23,7 +23,7 @@ public class RandomBackoffTest extends AbstractBaseTestCase {
 	@Test
 	public void shouldApplyRandomUniformDistributionWithDefaultRange() throws Exception {
 		//given
-		final Backoff backoff = new FixedIntervalBackoff().withUniformJitter();
+		final Backoff backoff = new UniformRandomBackoff(new FixedIntervalBackoff());
 
 		//when
 		final long delay = backoff.delayMillis(anyRetry());
@@ -38,7 +38,7 @@ public class RandomBackoffTest extends AbstractBaseTestCase {
 	public void shouldApplyRandomUniformDistribution() throws Exception {
 		//given
 		final int range = 300;
-		final Backoff backoff = new FixedIntervalBackoff().withUniformJitter(range);
+		final Backoff backoff = new UniformRandomBackoff(new FixedIntervalBackoff(), range);
 
 		//when
 		final long delay = backoff.delayMillis(anyRetry());
@@ -65,7 +65,7 @@ public class RandomBackoffTest extends AbstractBaseTestCase {
 	@Test
 	public void shouldApplyRandomProportionalDistributionWithDefaultRange() throws Exception {
 		//given
-		final Backoff backoff = new FixedIntervalBackoff().withProportionalJitter();
+		final Backoff backoff = new ProportionalRandomBackoff(new FixedIntervalBackoff());
 
 		//when
 		final long delay = backoff.delayMillis(anyRetry());
@@ -80,7 +80,7 @@ public class RandomBackoffTest extends AbstractBaseTestCase {
 	public void shouldApplyRandomProportionalDistribution() throws Exception {
 		//given
 		final double range = 0.3;
-		final Backoff backoff = new FixedIntervalBackoff().withProportionalJitter(range);
+		final Backoff backoff = new ProportionalRandomBackoff(new FixedIntervalBackoff(), range);
 
 		//when
 		final long delay = backoff.delayMillis(anyRetry());

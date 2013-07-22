@@ -13,7 +13,8 @@ public class BoundedMinBackoffTest extends AbstractBaseTestCase {
 
 	@Test
 	public void shouldReturnOriginalBackoffDelayIfAboveMin() throws Exception {
-		final Backoff backoff = new ExponentialDelayBackoff(1000, 2.0).withMinDelay();
+		final Backoff backoff = new BoundedMinBackoff(
+				new ExponentialDelayBackoff(1000, 2.0));
 
 		assertThat(backoff.delayMillis(retry(1))).isEqualTo(1000);
 		assertThat(backoff.delayMillis(retry(2))).isEqualTo(2000);
@@ -23,23 +24,26 @@ public class BoundedMinBackoffTest extends AbstractBaseTestCase {
 
 	@Test
 	public void shouldCapBackoffAtDefaultLevel() throws Exception {
-		final Backoff backoff = new ExponentialDelayBackoff(1, 2.0).withMinDelay();
+		final Backoff backoff = new BoundedMinBackoff(
+				new ExponentialDelayBackoff(1, 2.0));
 
 		assertThat(backoff.delayMillis(retry(1))).isEqualTo(BoundedMinBackoff.DEFAULT_MIN_DELAY_MILLIS);
 	}
 
 	@Test
 	public void shouldCapBackoffAtGivenLevel() throws Exception {
-		final Backoff backoff = new ExponentialDelayBackoff(1, 2.0).withMaxDelay(250);
+		final Backoff backoff = new BoundedMaxBackoff(
+				new ExponentialDelayBackoff(1, 2.0), 250);
 
 		assertThat(backoff.delayMillis(retry(100))).isEqualTo(250);
 	}
 
 	@Test
 	public void shouldApplyBothMinAndMaxBound() throws Exception {
-		final Backoff backoff = new ExponentialDelayBackoff(1, 2.0).
-				withMinDelay(5).
-				withMaxDelay(10);
+		final Backoff backoff =
+				new BoundedMinBackoff(
+						new BoundedMaxBackoff(
+								new ExponentialDelayBackoff(1, 2.0), 10), 5);
 
 		assertThat(backoff.delayMillis(retry(2))).isEqualTo(5);
 		assertThat(backoff.delayMillis(retry(3))).isEqualTo(5);

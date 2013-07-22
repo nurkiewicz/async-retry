@@ -2,9 +2,9 @@ package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
 import com.blogspot.nurkiewicz.asyncretry.function.RetryRunnable;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Tomasz Nurkiewicz
@@ -12,11 +12,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface RetryExecutor {
 
-	CompletableFuture<Void> doWithRetry(RetryRunnable action);
+	ListenableFuture<Void> doWithRetry(RetryRunnable action);
 
-	<V> CompletableFuture<V> getWithRetry(Callable<V> task);
+	<V> ListenableFuture<V> getWithRetry(Callable<V> task);
 
-	<V> CompletableFuture<V> getWithRetry(RetryCallable<V> task);
+	<V> ListenableFuture<V> getWithRetry(RetryCallable<V> task);
 
-	<V> CompletableFuture<V> getFutureWithRetry(RetryCallable<CompletableFuture<V>> task);
+	<V> ListenableFuture<V> getFutureWithRetry(RetryCallable<ListenableFuture<V>> task);
 }

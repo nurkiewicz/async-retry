@@ -1,8 +1,9 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
+import com.blogspot.nurkiewicz.asyncretry.function.RetryRunnable;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.testng.annotations.Test;
-
-import java.util.concurrent.CompletableFuture;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -22,7 +23,12 @@ public class AsyncRetryExecutorHappyTest extends AbstractBaseTestCase {
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock);
 
 		//when
-		executor.doWithRetry(ctx -> serviceMock.alwaysSucceeds());
+		executor.doWithRetry(new RetryRunnable() {
+			@Override
+			public void run(RetryContext context) throws Exception {
+				serviceMock.alwaysSucceeds();
+			}
+		});
 
 		//then
 		verify(schedulerMock).schedule(notNullRunnable(), eq(0L), millis());
@@ -35,7 +41,12 @@ public class AsyncRetryExecutorHappyTest extends AbstractBaseTestCase {
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock);
 
 		//when
-		executor.doWithRetry(ctx -> serviceMock.alwaysSucceeds());
+		executor.doWithRetry(new RetryRunnable() {
+			@Override
+			public void run(RetryContext context) throws Exception {
+				serviceMock.alwaysSucceeds();
+			}
+		});
 
 		//then
 		verify(serviceMock).alwaysSucceeds();
@@ -48,7 +59,12 @@ public class AsyncRetryExecutorHappyTest extends AbstractBaseTestCase {
 		given(serviceMock.alwaysSucceeds()).willReturn(42);
 
 		//when
-		final CompletableFuture<Integer> future = executor.getWithRetry(serviceMock::alwaysSucceeds);
+		final ListenableFuture<Integer> future = executor.getWithRetry(new RetryCallable<Integer>() {
+			@Override
+			public Integer call(RetryContext context) throws Exception {
+				return serviceMock.alwaysSucceeds();
+			}
+		});
 
 		//then
 		assertThat(future.get()).isEqualTo(42);
@@ -61,7 +77,12 @@ public class AsyncRetryExecutorHappyTest extends AbstractBaseTestCase {
 		given(serviceMock.alwaysSucceeds()).willReturn(42);
 
 		//when
-		final CompletableFuture<Integer> future = executor.getWithRetry(serviceMock::alwaysSucceeds);
+		final ListenableFuture<Integer> future = executor.getWithRetry(new RetryCallable<Integer>() {
+			@Override
+			public Integer call(RetryContext context) throws Exception {
+				return serviceMock.alwaysSucceeds();
+			}
+		});
 
 		//then
 		assertThat(future.get()).isEqualTo(42);

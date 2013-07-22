@@ -31,7 +31,7 @@ public class MaxRetriesPolicyTest extends AbstractBaseTestCase {
 	@Test
 	public void shouldStopAfterConfiguredNumberOfRetries() throws Exception {
 		//given
-		final RetryPolicy retryPolicy = new RetryInfinitelyPolicy().withMaxRetries(7);
+		final RetryPolicy retryPolicy = new MaxRetriesPolicy(new RetryInfinitelyPolicy(), 7);
 
 		//when
 		final boolean firstRetry = retryPolicy.shouldContinue(retry(1));

@@ -1,17 +1,18 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
-import com.blogspot.nurkiewicz.asyncretry.backoff.Backoff;
-import com.blogspot.nurkiewicz.asyncretry.backoff.ExponentialDelayBackoff;
-import com.blogspot.nurkiewicz.asyncretry.backoff.FixedIntervalBackoff;
+import com.blogspot.nurkiewicz.asyncretry.backoff.*;
 import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
 import com.blogspot.nurkiewicz.asyncretry.function.RetryRunnable;
+import com.blogspot.nurkiewicz.asyncretry.policy.MaxRetriesPolicy;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
+import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortPredicateRetryPolicy;
+import com.blogspot.nurkiewicz.asyncretry.policy.exception.ExceptionClassRetryPolicy;
+import com.google.common.base.Predicate;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.Predicate;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -50,29 +51,37 @@ public class AsyncRetryExecutor implements RetryExecutor {
 	}
 
 	@Override
-	public CompletableFuture<Void> doWithRetry(RetryRunnable action) {
-		return getWithRetry(context -> {
-			action.run(context);
-			return null;
+	public ListenableFuture<Void> doWithRetry(final RetryRunnable action) {
+		return getWithRetry(new RetryCallable<Void>() {
+			@Override
+			public Void call(RetryContext context) throws Exception {
+				action.run(context);
+				return null;
+			}
 		});
 	}
 
 	@Override
-	public <V> CompletableFuture<V> getWithRetry(Callable<V> task) {
-		return getWithRetry(ctx -> task.call());
+	public <V> ListenableFuture<V> getWithRetry(final Callable<V> task) {
+		return getWithRetry(new RetryCallable<V>() {
+			@Override
+			public V call(RetryContext context) throws Exception {
+				return task.call();
+			}
+		});
 	}
 
 	@Override
-	public <V> CompletableFuture<V> getWithRetry(RetryCallable<V> task) {
+	public <V> ListenableFuture<V> getWithRetry(RetryCallable<V> task) {
 		return scheduleImmediately(createTask(task));
 	}
 
 	@Override
-	public <V> CompletableFuture<V> getFutureWithRetry(RetryCallable<CompletableFuture<V>> task) {
+	public <V> ListenableFuture<V> getFutureWithRetry(RetryCallable<ListenableFuture<V>> task) {
 		return scheduleImmediately(createFutureTask(task));
 	}
 
-	private <V> CompletableFuture<V> scheduleImmediately(RetryJob<V> job) {
+	private <V> ListenableFuture<V> scheduleImmediately(RetryJob<V> job) {
 		scheduler.schedule(job, 0, MILLISECONDS);
 		return job.getFuture();
 	}
@@ -81,7 +90,7 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return new SyncRetryJob<>(function, this);
 	}
 
-	protected <V> RetryJob<V> createFutureTask(RetryCallable<CompletableFuture<V>> function) {
+	protected <V> RetryJob<V> createFutureTask(RetryCallable<ListenableFuture<V>> function) {
 		return new AsyncRetryJob<>(function, this);
 	}
 
@@ -132,47 +141,47 @@ public class AsyncRetryExecutor implements RetryExecutor {
 	}
 
 	public AsyncRetryExecutor retryOn(Class<? extends Throwable> retryOnThrowable) {
-		return this.withRetryPolicy(retryPolicy.retryOn(retryOnThrowable));
+		return this.withRetryPolicy(ExceptionClassRetryPolicy.retryOn(retryPolicy, retryOnThrowable));
 	}
 
 	public AsyncRetryExecutor abortOn(Class<? extends Throwable> abortOnThrowable) {
-		return this.withRetryPolicy(retryPolicy.abortOn(abortOnThrowable));
+		return this.withRetryPolicy(ExceptionClassRetryPolicy.abortOn(retryPolicy, abortOnThrowable));
 	}
 
 	public AsyncRetryExecutor abortIf(Predicate<Throwable> abortPredicate) {
-		return this.withRetryPolicy(retryPolicy.abortIf(abortPredicate));
+		return this.withRetryPolicy(new AbortPredicateRetryPolicy(retryPolicy, abortPredicate));
 	}
 
 	public AsyncRetryExecutor withUniformJitter() {
-		return this.withBackoff(this.backoff.withUniformJitter());
+		return this.withBackoff(new UniformRandomBackoff(backoff));
 	}
 
 	public AsyncRetryExecutor withUniformJitter(long range) {
-		return this.withBackoff(this.backoff.withUniformJitter(range));
+		return this.withBackoff(new UniformRandomBackoff(backoff, range));
 	}
 
 	public AsyncRetryExecutor withProportionalJitter() {
-		return this.withBackoff(this.backoff.withProportionalJitter());
+		return this.withBackoff(new ProportionalRandomBackoff(backoff));
 	}
 
 	public AsyncRetryExecutor withProportionalJitter(double multiplier) {
-		return this.withBackoff(this.backoff.withProportionalJitter(multiplier));
+		return this.withBackoff(new ProportionalRandomBackoff(backoff, multiplier));
 	}
 
 	public AsyncRetryExecutor withMinDelay(long minDelayMillis) {
-		return this.withBackoff(this.backoff.withMinDelay(minDelayMillis));
+		return this.withBackoff(new BoundedMinBackoff(backoff, minDelayMillis));
 	}
 
 	public AsyncRetryExecutor withMaxDelay(long maxDelayMillis) {
-		return this.withBackoff(this.backoff.withMaxDelay(maxDelayMillis));
+		return this.withBackoff(new BoundedMaxBackoff(backoff, maxDelayMillis));
 	}
 
 	public AsyncRetryExecutor withMaxRetries(int times) {
-		return this.withRetryPolicy(this.retryPolicy.withMaxRetries(times));
+		return this.withRetryPolicy(new MaxRetriesPolicy(retryPolicy, times));
 	}
 
 	public AsyncRetryExecutor dontRetry() {
-		return this.withRetryPolicy(this.retryPolicy.dontRetry());
+		return this.withRetryPolicy(new MaxRetriesPolicy(retryPolicy, 0));
 	}
 
 	public AsyncRetryExecutor withNoDelay() {

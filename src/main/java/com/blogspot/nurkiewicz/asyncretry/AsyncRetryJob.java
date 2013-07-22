@@ -1,8 +1,10 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
-
-import java.util.concurrent.CompletableFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
 /**
  * @author Tomasz Nurkiewicz
@@ -10,29 +12,31 @@ import java.util.concurrent.CompletableFuture;
  */
 public class AsyncRetryJob<V> extends RetryJob<V> {
 
-	private final RetryCallable<CompletableFuture<V>> userTask;
+	private final RetryCallable<ListenableFuture<V>> userTask;
 
-	public AsyncRetryJob(RetryCallable<CompletableFuture<V>> userTask, AsyncRetryExecutor parent) {
-		this(userTask, parent, new AsyncRetryContext(parent.getRetryPolicy()), new CompletableFuture<>());
+	public AsyncRetryJob(RetryCallable<ListenableFuture<V>> userTask, AsyncRetryExecutor parent) {
+		this(userTask, parent, new AsyncRetryContext(parent.getRetryPolicy()), SettableFuture.<V>create());
 	}
 
-	public AsyncRetryJob(RetryCallable<CompletableFuture<V>> userTask, AsyncRetryExecutor parent, AsyncRetryContext context, CompletableFuture<V> future) {
+	public AsyncRetryJob(RetryCallable<ListenableFuture<V>> userTask, AsyncRetryExecutor parent, AsyncRetryContext context, SettableFuture<V> future) {
 		super(context, parent, future);
 		this.userTask = userTask;
 	}
 
 	@Override
-	public void run(long startTime) {
+	public void run(final long startTime) {
 		try {
-			userTask.call(context).
-					exceptionally(throwable -> {
-						throwable.printStackTrace();
-						handleThrowable(throwable, System.currentTimeMillis() - startTime);
-						return null;
-					}).
-					thenAccept(result ->
-							complete(result, System.currentTimeMillis() - startTime)
-					);
+			Futures.addCallback(userTask.call(context), new FutureCallback<V>() {
+				@Override
+				public void onSuccess(V result) {
+					complete(result, System.currentTimeMillis() - startTime);
+				}
+
+				@Override
+				public void onFailure(Throwable throwable) {
+					handleThrowable(throwable, System.currentTimeMillis() - startTime);
+				}
+			});
 		} catch (Throwable t) {
 			handleThrowable(t, System.currentTimeMillis() - startTime);
 		}

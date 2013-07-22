@@ -3,6 +3,8 @@ package com.blogspot.nurkiewicz.asyncretry;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.testng.annotations.BeforeMethod;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,9 +34,12 @@ public class AbstractBaseTestCase {
 	}
 
 	private void setupMocks() {
-		given(schedulerMock.schedule(notNullRunnable(), anyLong(), eq(TimeUnit.MILLISECONDS))).willAnswer(invocation -> {
-			((Runnable) invocation.getArguments()[0]).run();
-			return null;
+		given(schedulerMock.schedule(notNullRunnable(), anyLong(), eq(TimeUnit.MILLISECONDS))).willAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				((Runnable) invocation.getArguments()[0]).run();
+				return null;
+			}
 		});
 	}
 

@@ -13,7 +13,8 @@ public class BoundedMaxBackoffTest extends AbstractBaseTestCase {
 
 	@Test
 	public void shouldReturnOriginalBackoffDelayIfBelowMax() throws Exception {
-		final Backoff backoff = new ExponentialDelayBackoff(1, 2.0).withMaxDelay();
+		final Backoff backoff = new BoundedMaxBackoff(
+				new ExponentialDelayBackoff(1, 2.0));
 
 		assertThat(backoff.delayMillis(retry(1))).isEqualTo(1);
 		assertThat(backoff.delayMillis(retry(2))).isEqualTo(2);
@@ -23,14 +24,16 @@ public class BoundedMaxBackoffTest extends AbstractBaseTestCase {
 
 	@Test
 	public void shouldCapBackoffAtDefaultLevel() throws Exception {
-		final Backoff backoff = new ExponentialDelayBackoff(1, 2.0).withMaxDelay();
+		final Backoff backoff = new BoundedMaxBackoff(
+				new ExponentialDelayBackoff(1, 2.0));
 
 		assertThat(backoff.delayMillis(retry(100))).isEqualTo(BoundedMaxBackoff.DEFAULT_MAX_DELAY_MILLIS);
 	}
 
 	@Test
 	public void shouldCapBackoffAtGivenLevel() throws Exception {
-		final Backoff backoff = new ExponentialDelayBackoff(1, 2.0).withMaxDelay(1234);
+		final Backoff backoff = new BoundedMaxBackoff(
+				new ExponentialDelayBackoff(1, 2.0), 1234);
 
 		assertThat(backoff.delayMillis(retry(100))).isEqualTo(1234);
 	}

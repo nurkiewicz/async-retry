@@ -1,10 +1,11 @@
 package com.blogspot.nurkiewicz.asyncretry.backoff;
 
 import com.blogspot.nurkiewicz.asyncretry.RetryContext;
+import com.google.common.base.Throwables;
 
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Supplier;
 
 /**
  * @author Tomasz Nurkiewicz
@@ -12,17 +13,27 @@ import java.util.function.Supplier;
  */
 abstract public class RandomBackoff extends BackoffWrapper {
 
-	private final Supplier<Random> randomSource;
+	private final Callable<Random> randomSource;
 
 	protected RandomBackoff(Backoff target) {
-		this(target, ThreadLocalRandom::current);
+		this(target, new Callable<Random>() {
+			@Override
+			public Random call() throws Exception {
+				return ThreadLocalRandom.current();
+			}
+		});
 	}
 
-	protected RandomBackoff(Backoff target, Random randomSource) {
-		this(target, () -> randomSource);
+	protected RandomBackoff(Backoff target, final Random randomSource) {
+		this(target, new Callable<Random>() {
+			@Override
+			public Random call() throws Exception {
+				return randomSource;
+			}
+		});
 	}
 
-	private RandomBackoff(Backoff target, Supplier<Random> randomSource) {
+	private RandomBackoff(Backoff target, Callable<Random> randomSource) {
 		super(target);
 		this.randomSource = randomSource;
 	}
@@ -37,6 +48,10 @@ abstract public class RandomBackoff extends BackoffWrapper {
 	abstract long addRandomJitter(long initialDelay);
 
 	protected Random random() {
-		return randomSource.get();
+		try {
+			return randomSource.call();
+		} catch (Exception e) {
+			throw Throwables.propagate(e);
+		}
 	}
 }

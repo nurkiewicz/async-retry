@@ -1,18 +1,17 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
-
-import java.util.concurrent.CompletableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
 class SyncRetryJob<V> extends RetryJob<V> {
 
 	private final RetryCallable<V> userTask;
 
 	public SyncRetryJob(RetryCallable<V> userTask, AsyncRetryExecutor parent) {
-		this(userTask, parent, new AsyncRetryContext(parent.getRetryPolicy()), new CompletableFuture<>());
+		this(userTask, parent, new AsyncRetryContext(parent.getRetryPolicy()), SettableFuture.<V>create());
 	}
 
-	public SyncRetryJob(RetryCallable<V> userTask, AsyncRetryExecutor parent, AsyncRetryContext context, CompletableFuture<V> future) {
+	public SyncRetryJob(RetryCallable<V> userTask, AsyncRetryExecutor parent, AsyncRetryContext context, SettableFuture<V> future) {
 		super(context, parent, future);
 		this.userTask = userTask;
 	}

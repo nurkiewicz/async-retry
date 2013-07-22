@@ -1,11 +1,13 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.blogspot.nurkiewicz.asyncretry.function.RetryCallable;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.fest.assertions.api.Assertions;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import static com.blogspot.nurkiewicz.asyncretry.backoff.FixedIntervalBackoff.DEFAULT_PERIOD_MILLIS;
@@ -26,10 +28,14 @@ public class AsyncRetryExecutorManyFailuresTest extends AbstractBaseTestCase {
 		given(serviceMock.sometimesFails()).willThrow(new IllegalStateException(DON_T_PANIC));
 
 		//when
-		final CompletableFuture<String> future = executor.getWithRetry(serviceMock::sometimesFails);
+		final ListenableFuture<String> future = executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
-		assertThat(future.isCompletedExceptionally()).isTrue();
 		try {
 			future.get();
 			Assertions.failBecauseExceptionWasNotThrown(IllegalStateException.class);
@@ -49,7 +55,12 @@ public class AsyncRetryExecutorManyFailuresTest extends AbstractBaseTestCase {
 				willReturn("Foo");
 
 		//when
-		final CompletableFuture<String> future = executor.getWithRetry(serviceMock::sometimesFails);
+		final ListenableFuture<String> future = executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
 		assertThat(future.get()).isEqualTo("Foo");
@@ -64,7 +75,12 @@ public class AsyncRetryExecutorManyFailuresTest extends AbstractBaseTestCase {
 				willReturn("Foo");
 
 		//when
-		final CompletableFuture<String> future = executor.getWithRetry(serviceMock::sometimesFails);
+		final ListenableFuture<String> future = executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
 		assertThat(future.get()).isEqualTo("Foo");
@@ -79,7 +95,12 @@ public class AsyncRetryExecutorManyFailuresTest extends AbstractBaseTestCase {
 				willReturn("Foo");
 
 		//when
-		executor.getWithRetry(serviceMock::sometimesFails);
+		executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
 		verify(serviceMock, times(4)).sometimesFails();
@@ -94,7 +115,12 @@ public class AsyncRetryExecutorManyFailuresTest extends AbstractBaseTestCase {
 				willReturn("Foo");
 
 		//when
-		executor.getWithRetry(serviceMock::sometimesFails);
+		executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
 		final InOrder inOrder = inOrder(schedulerMock);
@@ -113,7 +139,12 @@ public class AsyncRetryExecutorManyFailuresTest extends AbstractBaseTestCase {
 		given(serviceMock.calculateSum(3)).willReturn(BigDecimal.ONE);
 
 		//when
-		executor.getWithRetry(ctx -> serviceMock.calculateSum(ctx.getRetryCount()));
+		executor.getWithRetry(new RetryCallable<Object>() {
+			@Override
+			public Object call(RetryContext context) throws Exception {
+				return serviceMock.calculateSum(context.getRetryCount());
+			}
+		});
 
 		//then
 		final InOrder order = inOrder(serviceMock);

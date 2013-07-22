@@ -3,8 +3,7 @@ package com.blogspot.nurkiewicz.asyncretry.policy.exception;
 import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicyWrapper;
-
-import java.util.function.Predicate;
+import com.google.common.base.Predicate;
 
 /**
  * @author Tomasz Nurkiewicz
@@ -21,7 +20,7 @@ public class AbortPredicateRetryPolicy extends RetryPolicyWrapper {
 
 	@Override
 	public boolean shouldContinue(RetryContext context) {
-		return !abortPredicate.test(context.getLastThrowable()) &&
+		return !abortPredicate.apply(context.getLastThrowable()) &&
 				target.shouldContinue(context);
 	}
 

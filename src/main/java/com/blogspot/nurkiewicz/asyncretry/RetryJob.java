@@ -2,11 +2,12 @@ package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.backoff.Backoff;
 import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -16,11 +17,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 public abstract class RetryJob<V> implements Runnable {
 	private static final Logger log = LoggerFactory.getLogger(RetryJob.class);
-	protected final CompletableFuture<V> future;
+	protected final SettableFuture<V> future;
 	protected final AsyncRetryContext context;
 	protected final AsyncRetryExecutor parent;
 
-	public RetryJob(AsyncRetryContext context, AsyncRetryExecutor parent, CompletableFuture<V> future) {
+	public RetryJob(AsyncRetryContext context, AsyncRetryExecutor parent, SettableFuture<V> future) {
 		this.context = context;
 		this.parent = parent;
 		this.future = future;
@@ -33,9 +34,9 @@ public abstract class RetryJob<V> implements Runnable {
 	protected void handleManualAbort(AbortRetryException abortEx) {
 		logAbort(context);
 		if (context.getLastThrowable() != null) {
-			future.completeExceptionally(context.getLastThrowable());
+			future.setException(context.getLastThrowable());
 		} else {
-			future.completeExceptionally(abortEx);
+			future.setException(abortEx);
 		}
 	}
 
@@ -58,7 +59,7 @@ public abstract class RetryJob<V> implements Runnable {
 			retryWithDelay(nextRetryContext, delay, duration);
 		} else {
 			logFailure(nextRetryContext, duration);
-			future.completeExceptionally(t);
+			future.setException(t);
 		}
 	}
 
@@ -101,10 +102,10 @@ public abstract class RetryJob<V> implements Runnable {
 
 	protected void complete(V result, long duration) {
 		logSuccess(context, result, duration);
-		future.complete(result);
+		future.set(result);
 	}
 
-	public CompletableFuture<V> getFuture() {
+	public ListenableFuture<V> getFuture() {
 		return future;
 	}
 }

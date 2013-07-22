@@ -18,9 +18,9 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldRetryOnGivenException() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryOn(IOException.class).
-				abortOn(NullPointerException.class);
+		final RetryPolicy policy = ExceptionClassRetryPolicy.abortOn(
+				ExceptionClassRetryPolicy.retryOn(always, IOException.class),
+				NullPointerException.class);
 
 		assertThat(shouldRetryOn(policy, new NullPointerException())).isFalse();
 		assertThat(shouldRetryOn(policy, new IOException())).isTrue();
@@ -29,9 +29,9 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldAbortOnGivenException() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortOn(IOException.class).
-				retryOn(NullPointerException.class);
+		final RetryPolicy policy = ExceptionClassRetryPolicy.retryOn(
+				ExceptionClassRetryPolicy.abortOn(always, IOException.class),
+				NullPointerException.class);
 
 		assertThat(shouldRetryOn(policy, new NullPointerException())).isTrue();
 		assertThat(shouldRetryOn(policy, new IOException())).isFalse();
@@ -40,9 +40,9 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldRetryUnlessGivenSubclass() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryOn(IOException.class).
-				abortOn(FileNotFoundException.class);
+		final RetryPolicy policy = ExceptionClassRetryPolicy.abortOn(
+				ExceptionClassRetryPolicy.retryOn(always, IOException.class),
+				FileNotFoundException.class);
 
 		assertThat(shouldRetryOn(policy, new IOException())).isTrue();
 		assertThat(shouldRetryOn(policy, new SocketException())).isTrue();
@@ -52,9 +52,9 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldRetryUnlessGivenSubclassWithReversedDeclarationOrder() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				abortOn(FileNotFoundException.class).
-				retryOn(IOException.class);
+		final RetryPolicy policy = ExceptionClassRetryPolicy.retryOn(
+				ExceptionClassRetryPolicy.abortOn(always, FileNotFoundException.class),
+				IOException.class);
 
 		assertThat(shouldRetryOn(policy, new IOException())).isTrue();
 		assertThat(shouldRetryOn(policy, new SocketException())).isTrue();
@@ -64,12 +64,11 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldUnderstandManyWhiteAndBlackListedExceptions() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
-				retryOn(Exception.class).
-				retryOn(LinkageError.class).
-				abortOn(IncompatibleClassChangeError.class).
-				abortOn(ClassCastException.class).
-				abortOn(ConnectException.class);
+		final RetryPolicy policy = ExceptionClassRetryPolicy.abortOn(
+				ExceptionClassRetryPolicy.retryOn(always, Exception.class, LinkageError.class),
+				IncompatibleClassChangeError.class,
+				ClassCastException.class,
+				ConnectException.class);
 
 		assertThat(shouldRetryOn(policy, new Exception())).isTrue();
 		assertThat(shouldRetryOn(policy, new IOException())).isTrue();

@@ -1,9 +1,10 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
+import com.google.common.util.concurrent.ListenableFuture;
 import org.testng.annotations.Test;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -25,7 +26,12 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 				willThrow(AbortRetryException.class);
 
 		//when
-		executor.getWithRetry(serviceMock::sometimesFails);
+		executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
 		verify(serviceMock).sometimesFails();
@@ -39,10 +45,14 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 				willThrow(AbortRetryException.class);
 
 		//when
-		final CompletableFuture<String> future = executor.getWithRetry(serviceMock::sometimesFails);
+		final ListenableFuture<String> future = executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
-		assertThat(future.isCompletedExceptionally()).isTrue();
 		try {
 			future.get();
 			failBecauseExceptionWasNotThrown(ExecutionException.class);
@@ -63,10 +73,14 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 				);
 
 		//when
-		final CompletableFuture<String> future = executor.getWithRetry(serviceMock::sometimesFails);
+		final ListenableFuture<String> future = executor.getWithRetry(new Callable<String>() {
+			@Override
+			public String call() throws Exception {
+				return serviceMock.sometimesFails();
+			}
+		});
 
 		//then
-		assertThat(future.isCompletedExceptionally()).isTrue();
 		try {
 			future.get();
 			failBecauseExceptionWasNotThrown(ExecutionException.class);

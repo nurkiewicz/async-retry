@@ -1,5 +1,6 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
+import com.blogspot.nurkiewicz.asyncretry.function.RetryRunnable;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;
 
@@ -18,7 +19,12 @@ public class AsyncRetryContextTest extends AbstractBaseTestCase {
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).dontRetry();
 
 		//when
-		executor.doWithRetry(ctx -> serviceMock.withFlag(ctx.willRetry()));
+		executor.doWithRetry(new RetryRunnable() {
+			@Override
+			public void run(RetryContext context) throws Exception {
+				serviceMock.withFlag(context.willRetry());
+			}
+		});
 
 		//then
 		verify(serviceMock).withFlag(false);
@@ -30,7 +36,12 @@ public class AsyncRetryContextTest extends AbstractBaseTestCase {
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock);
 
 		//when
-		executor.doWithRetry(ctx -> serviceMock.withFlag(ctx.willRetry()));
+		executor.doWithRetry(new RetryRunnable() {
+			@Override
+			public void run(RetryContext context) throws Exception {
+				serviceMock.withFlag(context.willRetry());
+			}
+		});
 
 		//then
 		verify(serviceMock).withFlag(true);
@@ -43,7 +54,12 @@ public class AsyncRetryContextTest extends AbstractBaseTestCase {
 		doThrow(IllegalStateException.class).when(serviceMock).withFlag(anyBoolean());
 
 		//when
-		executor.doWithRetry(ctx -> serviceMock.withFlag(ctx.willRetry()));
+		executor.doWithRetry(new RetryRunnable() {
+			@Override
+			public void run(RetryContext context) throws Exception {
+				serviceMock.withFlag(context.willRetry());
+			}
+		});
 
 		//then
 		final InOrder order = inOrder(serviceMock);
