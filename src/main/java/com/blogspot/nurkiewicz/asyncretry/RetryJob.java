@@ -28,7 +28,7 @@ public abstract class RetryJob<V> implements Runnable {
 	}
 
 	protected void logSuccess(RetryContext context, V result, long duration) {
-		log.trace("Successful after {} retries, took {}ms and returned: {}", (context.getRetryCount() - 1), duration, result);
+		log.trace("Successful after {} retries, took {}ms and returned: {}", context.getRetryCount(), duration, result);
 	}
 
 	protected void handleManualAbort(AbortRetryException abortEx) {
