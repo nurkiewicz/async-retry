@@ -103,9 +103,9 @@ The API is very simple. You provide a block of code and the library will run it 
 
 ```java
 RetryExecutor executor = //...
-```
 
 executor.getWithRetry(() -> new Socket("localhost", 8080));
+```
 
 Returned `CompletableFuture<Socket>` will be resolved once connecting to `localhost:8080` succeeds. Optionally we can consume [`RetryContext`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/RetryContext.java) to get extra context like which retry is currently being executed:
 
@@ -264,8 +264,8 @@ If we are already here, by default backoff is applied after executing user task.
 
 ```java
 executor.
-		withFixedBackoff(200).
-		withFixedRate()
+	withFixedBackoff(200).
+	withFixedRate()
 ```
 
 This is similar to "fixed rate" vs. "fixed delay" approaches in [`ScheduledExecutorService`](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html). BTW don't expect `RetryExecutor` to be very precise, it does it's best but it heavily depends on aforementioned `ScheduledExecutorService` accuracy.
