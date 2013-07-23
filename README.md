@@ -1,17 +1,16 @@
 # Asynchronous retry pattern
 
-## In 60 seconds
-
-When you have a piece of code that often fails and must be retried, this Java 7/8 library provides rich and unobtrusive API with fast scalable implementation for this purpose:
+When you have a piece of code that often fails and must be retried, this Java 7/8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
 
     ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    RetryExecutor executor = new AsyncRetryExecutor(scheduler).
+	RetryExecutor executor = new AsyncRetryExecutor(scheduler).
         retryOn(SocketException.class).
         withExponentialBackoff(500, 2).     //500ms times 2 after each retry
         withMaxDelay(10_000).               //10 seconds
-        withUniformJitter();                //+/- 100 ms randomly
-    
-You can now reun arbitrary block of code and the library will retry it for you in case it throws `SocketException`:
+        withUniformJitter().                //add between +/- 100 ms randomly
+        withMaxRetries(20);    
+        
+You can now run arbitrary block of code and the library will retry it for you in case it throws `SocketException`:
 
 	final CompletableFuture<Socket> future = executor.getWithRetry(() ->
             new Socket("localhost", 8080)
@@ -49,6 +48,19 @@ This is a sample output that you might expect:
     TRACE | Successful after 2 retries, took 0ms and returned: Socket[addr=localhost/127.0.0.1,port=8080,localport=46332]
 
     Connected! Socket[addr=localhost/127.0.0.1,port=8080,localport=46332]
+    
+Imagine you connect to two different systems, one is *slow*, second *unreliable* and fails often:
+
+	CompletableFuture<String> stringFuture = executor.getWithRetry(ctx -> unreliable());
+	CompletableFuture<Integer> intFuture = executor.getWithRetry(ctx -> slow());
+
+	stringFuture.thenAcceptBoth(intFuture, (String s, Integer i) -> {
+		//both done after some retries
+	});
+
+`thenAcceptBoth()` callback is executed asynchronously when both slow and unreliable systems finally reply without any failure. Similarly (using `CompletableFuture.acceptEither()`) you can call two or more unreliable servers asynchronously at the same time and be notified when the first one succeeds after some number of retries.
+
+I can't emphasize this enough - retries are executed asynchronously and effectively use thread pool, rather than sleeping blindly.
 
 # Rationale
 
@@ -69,7 +81,11 @@ The main abstraction is [`RetryExecutor`](https://github.com/nurkiewicz/async-re
     	<V> CompletableFuture<V> getFutureWithRetry(RetryCallable<CompletableFuture<V>> task);
     }
     
+Don't worry about [`RetryRunnable`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/function/RetryRunnable.java) and [`RetryCallable`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/function/RetryCallable.java) - they allow checked exceptions for your convenience and most of the time we will use lambda expressions anyway.
+
 Please note that it returns [`CompletableFuture`](http://nurkiewicz.blogspot.no/2013/05/java-8-definitive-guide-to.html). We no longer pretend that calling faulty method is fast. If the library encounters an exception it will retry our block of code with preconfigured backoff delays. The invocation time will sky-rocket from milliseconds to several seconds. `CompletableFuture` clearly indicates that. Moreover it's not a dumb [`java.util.concurrent.Future`](http://nurkiewicz.blogspot.no/2013/02/javautilconcurrentfuture-basics.html) we all know - [`CompletableFuture` in Java 8 is very powerful](http://nurkiewicz.blogspot.no/2013/05/java-8-completablefuture-in-action.html) and most importantly - non-blocking by default.
+
+If you need blocking result after all, just call `.get()` on `Future` object.
 
 # Basic API
 
@@ -113,36 +129,31 @@ Passing `asyncHttp()` to `getWithRetry()` will yield `CompletableFuture<Completa
 		executor.getFutureWithRetry(ctx ->
 			asyncHttp(new URL("http://example.com")));
 
-In this case `RetryExecutor` will understand that whatever was returned from `asyncHttp()` is the actually task and will wait (asynchronously) on the result.
-
-This library is much more powerful, so let's dive into:
+In this case `RetryExecutor` will understand that whatever was returned from `asyncHttp()` is the actually just a `Future` and will (asynchronously) wait for result or failure. This library is much more powerful, so let's dive into:
 
 ## Configuration options
 
 In general there are two important factors you can configure: [`RetryPolicy`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/policy/RetryPolicy.java) that controls whether next retry attempt should be made and [`Backoff`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/backoff/Backoff.java) - that optionally adds delay between subsequent retry attempts.
 
-By default `RetryExecutor` repeats user task infinitely on every `Throwable` and adds 1 second delay between attempts.
-
-# TODO - CompletableFuture
+By default `RetryExecutor` repeats user task infinitely on every `Throwable` and adds 1 second delay between retry attempts.
 
 ### Creating an instance of `RetryExecutor`
 
 Default implementation of `RetryExecutor` is [`AsyncRetryExecutor`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/AsyncRetryExecutor.java) which you can create directly:
 
 	ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
 	RetryExecutor executor = new AsyncRetryExecutor(scheduler);
 	
 	//...
 	
 	scheduler.shutdownNow();
 	
-The only required dependency is standard [`ScheduledExecutorService` from JDK](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html). One thread is enough in many cases but if you want to concurrently handle retry of hundreds or more tasks, consider increasing the pool size.
+The only required dependency is standard [`ScheduledExecutorService` from JDK](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ScheduledExecutorService.html). One thread is enough in many cases but if you want to concurrently handle retries of hundreds or more tasks, consider increasing the pool size.
 
-Notice that the `AsyncRetryExecutor` does not take care of shutting down the `ScheduledExecutorService`. This is a conscious design decision which we will explain later.
+Notice that the `AsyncRetryExecutor` does not take care of shutting down the `ScheduledExecutorService`. This is a conscious design decision which will be explained later.
 
-`AsyncRetryExecutor` has few other constructors but most of the time altering the behaviour of this class is most convenient with calling chained `with*()` methods. You will see plenty of examples written this way.
-
-Later on we will simply use `executor` reference without defining it. Assume it's of `RetryExecutor` type.
+`AsyncRetryExecutor` has few other constructors but most of the time altering the behaviour of this class is most convenient with calling chained `with*()` methods. You will see plenty of examples written this way. Later on we will simply use `executor` reference without defining it. Assume it's of `RetryExecutor` type.
 
 ### Retrying policy
 
@@ -189,9 +200,13 @@ Another way of interrupting retrying "loop" (remember that this process is async
 
     executor.withMaxRetries(5)
     
+In rare cases you may want to disable retries and barely take advantage from asynchronous execution. In that case try:
+
+    executor.dontRetry()
+    
 ### Delays between retries (backoff)
 
-Retrying immediately after failure is sometimes desired (see `OptimisticLockException` example) but in most cases is not desired. I you can't connect to external system, waiting a little bit before next attempt sounds reasonable. You save CPU, bandwidth and other server's resources. But there are quite a few options to consider: 
+Retrying immediately after failure is sometimes desired (see `OptimisticLockException` example) but in most cases it's a bad idea. If you can't connect to external system, waiting a little bit before next attempt sounds reasonably. You save CPU, bandwidth and other server's resources. But there are quite a few options to consider: 
 
 * should we retry with constant intervals or [increase delay after each failure](http://en.wikipedia.org/wiki/Exponential_backoff)?
 
@@ -199,7 +214,7 @@ Retrying immediately after failure is sometimes desired (see `OptimisticLockExce
 
 * should we add random "jitter" to delay times to spread retries of many tasks in time?
 
-This library answers all these questions
+This library answers all these questions.
 
 #### Fixed interval between retries
 
@@ -217,7 +232,7 @@ This is similar to "fixed rate" vs. "fixed delay" approaches in [`ScheduledExecu
 
 #### Exponentially growing intervals between retries
 
-It's probably an active research subject, but in general you may wish to expand retry delay over time, assuming that if the user task fails several times we should try less frequently. For example let's say we start with 100ms delay until first retry attempt is made but if that one fails as well, we should wait 200ms. And 400ms. And 800ms. You get the idea:
+It's probably an active research subject, but in general you may wish to expand retry delay over time, assuming that if the user task fails several times we should try less frequently. For example let's say we start with 100ms delay until first retry attempt is made but if that one fails as well, we should wait two times more (200ms). And later 400ms, 800ms... You get the idea:
 
     executor.withExponentialBackoff(100, 2)
     
@@ -229,7 +244,7 @@ This is an exponential function that can grow very fast. Thus it's useful to set
 		
 #### Random jitter
 
-One phenomena often observed during major outages is that systems tend to synchronize. Imagine a busy system that suddenly stops responding. Hundreds or thousands of requests fail and are retried. It depends on your backoff but by default all these requests will retry exactly after one second producing huge wave of traffic at one point of time. Finally such failures are propagated to other systems that, in turn, synchronize as well.
+One phenomena often observed during major outages is that systems tend to synchronize. Imagine a busy system that suddenly stops responding. Hundreds or thousands of requests fail and are retried. It depends on your backoff but by default all these requests will retry exactly after one second producing huge wave of traffic at one point in time. Finally such failures are propagated to other systems that, in turn, synchronize as well.
 
 To avoid this problem it's useful to spread retries over time, flattening the load. A simple solution is to add random jitter to delay time so that not all request are scheduled for retry at the exact same time. You have choice between uniform jitter (random value from -100ms to 100ms):
 
@@ -245,9 +260,9 @@ You may also put hard lower limit on delay time to avoid to short retry times be
     
 ## Implementation details
 
-This library was built with Java 8 in mind to take advantage of lambdas and new `CompletableFuture` abstraction (but Java 7 port with Guava dependency exists). It uses `ScheduledExecutorService` underneath to run tasks and schedule retries in the future - which allows best thread utilization.
+This library was built with Java 8 in mind to take advantage of lambdas and new `CompletableFuture` abstraction (but [Java 7 port with Guava dependency exists](https://github.com/nurkiewicz/async-retry/tree/java7)). It uses `ScheduledExecutorService` underneath to run tasks and schedule retries in the future - which allows best thread utilization.
 
-But what is really interesting is that the whole library is fully immutable, there is no single mutable variable, at all. This might be counter-intuitive at first, take for example this trivial code sample:
+But what is really interesting is that the whole library is fully immutable, there is no single mutable field, at all. This might be counter-intuitive at first, take for example this trivial code sample:
 
 	ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -259,21 +274,25 @@ But what is really interesting is that the whole library is fully immutable, the
 
 	AsyncRetryExecutor third = second.withMaxRetries(10);
 
-It might seem that all `with*()` methods or `retryOn()`/`abortOn()` mutate existing executor. But that's not the case, each configuration change **creates new instance**, leaving the old one untouched. So for example while `first` executor will retry on `FileNotFoundException`, `second` and `third` won't. However they all share the same `scheduler`. This is the reason why `AsyncRetryExecutor` does not shut down `ScheduledExecutorService` (it doesn't even have any `close()` method). Since we have no idea how many copies of `AsyncRetryExecutor` exist pointing to the same scheduler, we don't even try to manage its lifecycle. However this is typically not a problem (see *Spring integration* below).
+It might seem that all `with*()` methods or `retryOn()`/`abortOn()` mutate existing executor. But that's not the case, each configuration change **creates new instance**, leaving the old one untouched. So for example while `first` executor will retry on `FileNotFoundException`, the `second` and `third` won't. However they all share the same `scheduler`. This is the reason why `AsyncRetryExecutor` does not shut down `ScheduledExecutorService` (it doesn't even have any `close()` method). Since we have no idea how many copies of `AsyncRetryExecutor` exist pointing to the same scheduler, we don't even try to manage its lifecycle. However this is typically not a problem (see *Spring integration* below).
 
 You might be wondering, why such an awkward design decision? There are three reasons:
 
 * when writing a concurrent code immutability can greatly reduce risk of multi-threading bugs. For example `RetryContext` holds number of retries. But instead of mutating it we simply create new instance (copy) with incremented but `final` counter. No race condition or visibility can ever occur.
 
-* if you are given an existing `RetryExecutor` which is almost exactly what you want but you need one minor tweak, you simply call `executor.with...()` and get a fresh copy. You don't have worry about other places where the same executor was used (see: *Spring integration* for further examples)
+* if you are given an existing `RetryExecutor` which is almost exactly what you want but you need one minor tweak, you simply call `executor.with...()` and get a fresh copy. You don't have to worry about other places where the same executor was used (see: *Spring integration* for further examples)
 
 * functional programming and immutable data structures are *sexy* these days ;-).
 
 N.B.: `AsyncRetryExecutor` is **not** marked `final`, does you can break immutability by subclassing it and adding mutable state. Please don't do this, subclassing is only permitted to alter behaviour.
 
+## Dependencies
+
+This library requires Java 8 and [SLF4J](http://www.slf4j.org/) for logging. Java 7 port additionally depends on [Guava](http://code.google.com/p/guava-libraries/).
+
 ## Spring integration
 
-If you are just about to use `RetryExecutor` in Spring - feel free, but the configuration API might not work for you. Spring promotes (or used to promote) the convention of mutable services with plenty of setters. In XML you defined bean and invoke setters (via `<property name="..."/>`) on it. This convention assumes the existence of mutating setters. But I found this approach error-prone and counter-intuitive under some circumstances.
+If you are just about to use `RetryExecutor` in Spring - feel free, but the configuration API might not work for you. Spring promotes (or used to promote) the convention of mutable services with plenty of setters. In XML you define bean and invoke setters (via `<property name="..."/>`) on it. This convention assumes the existence of mutating setters. But I found this approach error-prone and counter-intuitive under some circumstances.
 
 Let's say we globally defined [`org.springframework.transaction.support.TransactionTemplate`](http://static.springsource.org/spring/docs/current/javadoc-api/org/springframework/transaction/support/TransactionTemplate.html) bean and injected it in multiple places. Great. Now there is this one single request that requires slightly different timeout:
 
@@ -313,7 +332,7 @@ You see where I'm going? Just create one, immutable service class and safely adj
 Hey! It's 21st century, we don't need XML in Spring any more. Bootstrap is simple as well:
 
     final ApplicationContext context = new AnnotationConfigApplicationContext(Beans.class);
-    context.getBean(RetryExecutor.class);
+    final RetryExecutor executor = context.getBean(RetryExecutor.class);
     //...
     context.close();
 
