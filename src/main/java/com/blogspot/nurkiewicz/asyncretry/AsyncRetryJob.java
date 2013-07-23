@@ -24,14 +24,15 @@ public class AsyncRetryJob<V> extends RetryJob<V> {
 	@Override
 	public void run(long startTime) {
 		try {
-			userTask.call(context).
-					exceptionally(throwable -> {
-						handleThrowable(throwable, System.currentTimeMillis() - startTime);
-						return null;
-					}).
-					thenAccept(result ->
-							complete(result, System.currentTimeMillis() - startTime)
-					);
+			userTask.call(context).handle((result, throwable) -> {
+				final long stopTime = System.currentTimeMillis() - startTime;
+				if (throwable != null) {
+					handleThrowable(throwable, stopTime);
+				} else {
+					complete(result, stopTime);
+				}
+				return null;
+			});
 		} catch (Throwable t) {
 			handleThrowable(t, System.currentTimeMillis() - startTime);
 		}
@@ -41,4 +42,6 @@ public class AsyncRetryJob<V> extends RetryJob<V> {
 	protected RetryJob<V> nextTask(AsyncRetryContext nextRetryContext) {
 		return new AsyncRetryJob<>(userTask, parent, nextRetryContext, future);
 	}
+
+
 }
