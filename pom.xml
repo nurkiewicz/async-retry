@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<name>Async-Retry</name>
 	<groupId>com.blogspot.nurkiewicz.asyncretry</groupId>
 	<artifactId>asyncretry</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -21,7 +20,7 @@
 		<connection>scm:git:git@github.com:nurkiewicz/async-retry.git</connection>
 		<url>scm:git:git@github.com:nurkiewicz/async-retry.git</url>
 		<developerConnection>scm:git:git@github.com:nurkiewicz/async-retry.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>0.0.1</tag>
 	</scm>
 
 	<dependencies>
