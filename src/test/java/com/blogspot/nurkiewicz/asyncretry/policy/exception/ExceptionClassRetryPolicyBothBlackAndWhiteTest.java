@@ -83,4 +83,22 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 		assertThat(shouldRetryOn(policy, new ConnectException())).isFalse();
 	}
 
+	@Test
+	public void shouldUnderstandManyWhiteAndBlackListedExceptionsInOneList() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				retryOn(Exception.class, LinkageError.class).
+				abortOn(IncompatibleClassChangeError.class, ClassCastException.class, ConnectException.class);
+
+		assertThat(shouldRetryOn(policy, new Exception())).isTrue();
+		assertThat(shouldRetryOn(policy, new IOException())).isTrue();
+		assertThat(shouldRetryOn(policy, new IllegalStateException())).isTrue();
+		assertThat(shouldRetryOn(policy, new NoClassDefFoundError())).isTrue();
+		assertThat(shouldRetryOn(policy, new UnsupportedClassVersionError())).isTrue();
+
+		assertThat(shouldRetryOn(policy, new NoSuchFieldError())).isFalse();
+		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
+		assertThat(shouldRetryOn(policy, new ClassCastException())).isFalse();
+		assertThat(shouldRetryOn(policy, new ConnectException())).isFalse();
+	}
+
 }

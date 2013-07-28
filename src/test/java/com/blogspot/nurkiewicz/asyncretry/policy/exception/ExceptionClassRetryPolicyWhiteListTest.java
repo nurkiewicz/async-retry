@@ -87,6 +87,15 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	}
 
 	@Test
+	public void shouldRetryOnAnyOfProvidedExceptionsInOneList() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				retryOn(OptimisticLockException.class, IOException.class);
+
+		assertThat(shouldRetryOn(policy, new OptimisticLockException())).isTrue();
+		assertThat(shouldRetryOn(policy, new IOException())).isTrue();
+	}
+
+	@Test
 	public void shouldNotRetryOnOtherExceptionsIfFewGivenExplicitly() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
 				retryOn(OptimisticLockException.class).
@@ -102,10 +111,34 @@ public class ExceptionClassRetryPolicyWhiteListTest extends AbstractExceptionCla
 	}
 
 	@Test
+	public void shouldNotRetryOnOtherExceptionsIfFewGivenExplicitlyInOneList() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				retryOn(OptimisticLockException.class, IOException.class);
+
+		assertThat(shouldRetryOn(policy, new Exception())).isFalse();
+		assertThat(shouldRetryOn(policy, new RuntimeException())).isFalse();
+		assertThat(shouldRetryOn(policy, new ClassCastException())).isFalse();
+		assertThat(shouldRetryOn(policy, new NullPointerException())).isFalse();
+		assertThat(shouldRetryOn(policy, new IllegalArgumentException())).isFalse();
+		assertThat(shouldRetryOn(policy, new IllegalStateException())).isFalse();
+		assertThat(shouldRetryOn(policy, new TimeoutException())).isFalse();
+	}
+
+	@Test
 	public void shouldNotRetryOnErrorsIfFewExceptionsGivenExplicitly() throws Exception {
 		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
 				retryOn(OptimisticLockException.class).
 				retryOn(IOException.class);
+
+		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
+		assertThat(shouldRetryOn(policy, new StackOverflowError())).isFalse();
+		assertThat(shouldRetryOn(policy, new NoClassDefFoundError())).isFalse();
+	}
+
+	@Test
+	public void shouldNotRetryOnErrorsIfFewExceptionsGivenExplicitlyInOneList() throws Exception {
+		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+				retryOn(OptimisticLockException.class, IOException.class);
 
 		assertThat(shouldRetryOn(policy, new OutOfMemoryError())).isFalse();
 		assertThat(shouldRetryOn(policy, new StackOverflowError())).isFalse();

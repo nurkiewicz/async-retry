@@ -16,12 +16,12 @@ public interface RetryPolicy {
 
 	boolean shouldContinue(RetryContext context);
 
-	default RetryPolicy retryOn(Class<? extends Throwable> retryOnThrowable) {
-		return ExceptionClassRetryPolicy.retryOn(this, retryOnThrowable);
+	default RetryPolicy retryOn(Class<? extends Throwable>... retryOnThrowables) {
+		return ExceptionClassRetryPolicy.retryOn(this, retryOnThrowables);
 	}
 
-	default RetryPolicy abortOn(Class<? extends Throwable> retryOnThrowable) {
-		return ExceptionClassRetryPolicy.abortOn(this, retryOnThrowable);
+	default RetryPolicy abortOn(Class<? extends Throwable>... retryOnThrowables) {
+		return ExceptionClassRetryPolicy.abortOn(this, retryOnThrowables);
 	}
 
 	default RetryPolicy abortIf(Predicate<Throwable> retryPredicate) {

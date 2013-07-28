@@ -4,9 +4,9 @@ import com.blogspot.nurkiewicz.asyncretry.RetryContext;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicyWrapper;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
@@ -30,39 +30,39 @@ public class ExceptionClassRetryPolicy extends RetryPolicyWrapper {
 		this.abortOn = abortOn;
 	}
 
-	public static ExceptionClassRetryPolicy retryOn(RetryPolicy target, Class<? extends Throwable> retryOnThrowable) {
+	public static ExceptionClassRetryPolicy retryOn(RetryPolicy target, Class<? extends Throwable>... retryOnThrowables) {
 		if (target instanceof ExceptionClassRetryPolicy) {
-			return mergeRetryOnWithExisting((ExceptionClassRetryPolicy) target, retryOnThrowable);
+			return mergeRetryOnWithExisting((ExceptionClassRetryPolicy) target, retryOnThrowables);
 		}
-		return new ExceptionClassRetryPolicy(target, Collections.<Class<? extends Throwable>>singleton(retryOnThrowable), emptySet());
+		return new ExceptionClassRetryPolicy(target, new HashSet<>(Arrays.asList(retryOnThrowables)), emptySet());
 	}
 
-	private static ExceptionClassRetryPolicy mergeRetryOnWithExisting(ExceptionClassRetryPolicy topTarget, Class<? extends Throwable> retryOnThrowable) {
+	private static ExceptionClassRetryPolicy mergeRetryOnWithExisting(ExceptionClassRetryPolicy topTarget, Class<? extends Throwable>... retryOnThrowables) {
 		return new ExceptionClassRetryPolicy(
 				topTarget.target,
-				setPlusElem(topTarget.retryOn, retryOnThrowable),
+				setPlusElems(topTarget.retryOn, retryOnThrowables),
 				topTarget.abortOn
 		);
 	}
 
-	public static ExceptionClassRetryPolicy abortOn(RetryPolicy target, Class<? extends Throwable> abortOnThrowable) {
+	public static ExceptionClassRetryPolicy abortOn(RetryPolicy target, Class<? extends Throwable>... abortOnThrowables) {
 		if (target instanceof ExceptionClassRetryPolicy) {
-			return mergeAbortOnWithExisting((ExceptionClassRetryPolicy) target, abortOnThrowable);
+			return mergeAbortOnWithExisting((ExceptionClassRetryPolicy) target, abortOnThrowables);
 		}
-		return new ExceptionClassRetryPolicy(target, emptySet(), Collections.<Class<? extends Throwable>>singleton(abortOnThrowable));
+		return new ExceptionClassRetryPolicy(target, emptySet(), new HashSet<>(Arrays.asList(abortOnThrowables)));
 	}
 
-	private static ExceptionClassRetryPolicy mergeAbortOnWithExisting(ExceptionClassRetryPolicy topTarget, Class<? extends Throwable> abortOnThrowable) {
+	private static ExceptionClassRetryPolicy mergeAbortOnWithExisting(ExceptionClassRetryPolicy topTarget, Class<? extends Throwable>... abortOnThrowables) {
 		return new ExceptionClassRetryPolicy(
 				topTarget.target,
 				topTarget.retryOn,
-				setPlusElem(topTarget.abortOn, abortOnThrowable)
+				setPlusElems(topTarget.abortOn, abortOnThrowables)
 		);
 	}
 
-	private static <T> Set<T> setPlusElem(Set<T> initial, T newElement) {
+	private static <T> Set<T> setPlusElems(Set<T> initial, T... newElement) {
 		final HashSet<T> copy = new HashSet<>(initial);
-		copy.add(Objects.requireNonNull(newElement));
+		copy.addAll(Arrays.asList(newElement));
 		return Collections.unmodifiableSet(copy);
 	}
 
