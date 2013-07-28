@@ -401,3 +401,45 @@ As you can see integrating modern, immutable services with Spring is just as sim
 ## Maturity
 
 This library is covered with a strong battery of unit tests. However it wasn't yet used in any production code and the API is subject to change. Of course you are encouraged to submit [bugs, feature requests](https://github.com/nurkiewicz/async-retry/issues) and [pull requests](https://github.com/nurkiewicz/async-retry/pulls). It was developed with Java 8 in mind but [Java 7 backport](https://github.com/nurkiewicz/async-retry/tree/java7) exists with slightly more verbose API and mandatory Guava dependency ([`ListenableFuture`](http://nurkiewicz.blogspot.no/2013/02/listenablefuture-in-guava.html) instead of [`CompletableFuture` from Java 8](http://nurkiewicz.blogspot.no/2013/05/java-8-definitive-guide-to.html)).
+
+## Using
+
+### Building:
+
+```
+$ git clone https://github.com/nurkiewicz/async-retry.git
+$ cd async-retry
+$ git checkout 0.0.1
+$ mvn install
+```
+
+### Maven
+
+This library is not yet available in [Maven Central Repository](http://search.maven.org). But once built locally you can access it via:
+
+```xml
+<dependency>
+    <groupId>com.blogspot.nurkiewicz.asyncretry</groupId>
+    <artifactId>asyncretry</artifactId>
+    <version>0.0.1</version>
+</dependency>
+```
+
+### Troubleshooting: `invalid target release: 1.8` during maven build
+
+If you see this error message during maven build:
+
+	[INFO] BUILD FAILURE
+	...
+	[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project lazyseq: 
+	Fatal error compiling: invalid target release: 1.8 -> [Help 1]
+
+it means you are not compiling using Java 8. [Download JDK 8 with lambda support](https://jdk8.java.net/lambda/) and let maven use it:
+
+	$ export JAVA_HOME=/path/to/jdk8
+
+
+## Version history
+
+### 0.0.1 (23-07-2013)
+* Initial revision
