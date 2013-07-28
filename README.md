@@ -409,7 +409,7 @@ This library is covered with a strong battery of unit tests. However it wasn't y
 ```
 $ git clone https://github.com/nurkiewicz/async-retry.git
 $ cd async-retry
-$ git checkout 0.0.1
+$ git checkout 0.0.2
 $ mvn install
 ```
 
@@ -421,7 +421,7 @@ This library is not yet available in [Maven Central Repository](http://search.ma
 <dependency>
     <groupId>com.blogspot.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
@@ -441,5 +441,10 @@ it means you are not compiling using Java 8. [Download JDK 8 with lambda support
 
 ## Version history
 
+### 0.0.2 (28-07-2013)
+
+* Ability to specify multiple exception classes in `retryOn()`/`abortON()` using varargs.
+
 ### 0.0.1 (23-07-2013)
+
 * Initial revision
