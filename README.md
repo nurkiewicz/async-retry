@@ -149,7 +149,27 @@ final CompletableFuture<String> response =
 		asyncHttp(new URL("http://example.com")));
 ```
 
-In this case `RetryExecutor` will understand that whatever was returned from `asyncHttp()` is the actually just a `Future` and will (asynchronously) wait for result or failure. This library is much more powerful, so let's dive into:
+In this case `RetryExecutor` will understand that whatever was returned from `asyncHttp()` is actually just a `Future` and will (asynchronously) wait for result or failure. Speaking of which, in some cases despite retrying `RetryExecutor` will fail to obtain successful result. In general there are three possible outcomes of returned `CompletableFuture`:
+
+1. *successful* - (possibly after some number of retries) - when our function eventually returns rather than throws
+
+2. *exceptional* due to excessive retries - if you configure finite number of retries, `RetryExecutor` will eventually give up. In that case `Future` is completed exceptionally, providing last encountered exception
+
+3. *exceptional* due to exception that should not be retried (see e.g. `abortOn()` and `abortIf()`) - just as above last encountered exception completes `Future`.
+
+You can handle all these cases with the following by using [`CompletableFuture.whenComplete()`](http://download.java.net/lambda/b102/docs/api/java/util/concurrent/CompletableFuture.html#whenComplete(java.util.function.BiConsumer)) or [`CompletableFuture.handle()`](http://download.java.net/lambda/b102/docs/api/java/util/concurrent/CompletableFuture.html#handle(java.util.function.BiFunction)):
+
+```java
+executor.
+	getWithRetry(() -> new Socket("localhost", 8080)).
+	whenComplete((socket, error) -> {
+		if (socket != null) {
+			//connected OK, proceed
+		} else {
+			log.error("Can't connect, last error:", error);
+		}
+	});
+```
 
 ## Configuration options
 
