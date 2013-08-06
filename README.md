@@ -70,7 +70,7 @@ stringFuture.thenAcceptBoth(intFuture, (String s, Integer i) -> {
 
 I can't emphasize this enough - retries are executed asynchronously and effectively use thread pool, rather than sleeping blindly.
 
-# Rationale
+## Rationale
 
 Often we are forced to [retry](http://servicedesignpatterns.com/WebServiceInfrastructures/IdempotentRetry) given piece of code because it failed and we must try again, typically with a small delay to spare CPU. This requirement is quite common and there are few ready-made generic implementations with [retry support in Spring Batch](http://static.springsource.org/spring-batch/reference/html/retry.html) through [`RetryTemplate`](http://static.springsource.org/spring-batch/2.1.x/apidocs/org/springframework/batch/retry/support/RetryTemplate.html) class being best known. But there are few other, quite similar approaches ([[1]](http://fahdshariff.blogspot.no/2009/08/retrying-operations-in-java.html), [[2]](https://github.com/Ninja-Squad/ninja-core/tree/master/src/main/java/com/ninja_squad/core/retry)). All of these attempts (and I bet many of you implemented similar tool yourself!) suffer the same issue - they are blocking, thus wasting a lot of resources and not scaling well.
 
@@ -97,12 +97,12 @@ Please note that it returns [`CompletableFuture`](http://nurkiewicz.blogspot.no/
 
 If you need blocking result after all, just call `.get()` on `Future` object.
 
-# Basic API
+## Basic API
 
 The API is very simple. You provide a block of code and the library will run it multiple times until it returns normally rather than throwing an exception. It may also put configurable delays between retries:
 
 ```java
-RetryExecutor executor = //...
+RetryExecutor executor = //see "Creating an instance of RetryExecutor" below
 
 executor.getWithRetry(() -> new Socket("localhost", 8080));
 ```
