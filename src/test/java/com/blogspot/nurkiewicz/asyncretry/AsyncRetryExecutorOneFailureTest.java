@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -49,6 +50,29 @@ public class AsyncRetryExecutorOneFailureTest extends AbstractBaseTestCase {
 		} catch (ExecutionException e) {
 			assertThat(e.getCause()).isInstanceOf(AbortRetryException.class);
 		}
+	}
+
+	@Test
+	public void shouldCompleteWithExceptionIfFirstIterationThrownIt() throws Exception {
+		//given
+		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).dontRetry();
+		given(serviceMock.sometimesFails()).
+				willThrow(new IllegalStateException(DON_T_PANIC));
+
+		//when
+		final CompletableFuture<String> future = executor.getWithRetry(serviceMock::sometimesFails);
+
+		//then
+		AtomicReference<Throwable> error = new AtomicReference<>();
+		future.whenComplete((res, t) -> {
+			if (res == null) {
+				error.set(t);       //schedulerMock is synchronous anyway
+			}
+		});
+		assertThat(error.get()).
+				isNotNull().
+				isInstanceOf(IllegalStateException.class).
+				hasMessage(DON_T_PANIC);
 	}
 
 	@Test
