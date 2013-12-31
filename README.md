@@ -175,7 +175,7 @@ executor.
 
 In general there are two important factors you can configure: [`RetryPolicy`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/policy/RetryPolicy.java) that controls whether next retry attempt should be made and [`Backoff`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/backoff/Backoff.java) - that optionally adds delay between subsequent retry attempts.
 
-By default `RetryExecutor` repeats user task infinitely on every `Throwable` and adds 1 second delay between retry attempts.
+By default `RetryExecutor` repeats user task infinitely on every `	Throwable` and adds 1 second delay between retry attempts.
 
 ### Creating an instance of `RetryExecutor`
 
@@ -230,9 +230,9 @@ Clearly you don't want to retry `NullPointerException` or `IllegalArgumentExcept
 ```java
 executor.
 	retryOn(IOException.class).
-	abortIf(FileNotFoundException.class).
+	abortOn(FileNotFoundException.class).
 	retryOn(SQLException.class).
-	abortIf(DataTruncation.class).
+	abortOn(DataTruncation.class).
 	getWithRetry(ctx -> dao.load(42));
 ```
 
