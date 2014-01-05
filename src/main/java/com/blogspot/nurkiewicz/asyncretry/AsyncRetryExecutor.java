@@ -141,6 +141,10 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return this.withRetryPolicy(retryPolicy.abortOn(abortOnThrowable));
 	}
 
+	public AsyncRetryExecutor retryIf(Predicate<Throwable> retryPredicate) {
+		return this.withRetryPolicy(retryPolicy.retryIf(retryPredicate));
+	}
+
 	public AsyncRetryExecutor abortIf(Predicate<Throwable> abortPredicate) {
 		return this.withRetryPolicy(retryPolicy.abortIf(abortPredicate));
 	}
