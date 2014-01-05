@@ -4,7 +4,7 @@
 	<name>Async-Retry</name>
 	<groupId>com.blogspot.nurkiewicz.asyncretry</groupId>
 	<artifactId>asyncretry</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.3</version>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -20,7 +20,7 @@
 		<connection>scm:git:git@github.com:nurkiewicz/async-retry.git</connection>
 		<url>scm:git:git@github.com:nurkiewicz/async-retry.git</url>
 		<developerConnection>scm:git:git@github.com:nurkiewicz/async-retry.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>0.0.3</tag>
 	</scm>
 
 	<dependencies>
