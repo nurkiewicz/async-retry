@@ -1,8 +1,7 @@
-package com.blogspot.nurkiewicz.asyncretry.policy.exception;
+package com.blogspot.nurkiewicz.asyncretry.policy;
 
 import com.blogspot.nurkiewicz.asyncretry.AsyncRetryContext;
 import com.blogspot.nurkiewicz.asyncretry.RetryContext;
-import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.mockito.Mock;
 import org.testng.annotations.Test;
 
@@ -13,7 +12,7 @@ import static org.mockito.BDDMockito.given;
  * @author Tomasz Nurkiewicz
  * @since 7/20/13, 5:17 PM
  */
-public class AbortPredicateRetryPolicyTest extends AbstractExceptionClassRetryPolicyTest {
+public class RetryPolicyPredicatesTest extends AbstractRetryPolicyTest {
 
 	@Mock
 	private RetryContext retryContextMock;

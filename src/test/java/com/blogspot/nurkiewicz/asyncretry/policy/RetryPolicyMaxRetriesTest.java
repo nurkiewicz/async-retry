@@ -9,7 +9,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Tomasz Nurkiewicz
  * @since 7/20/13, 7:16 PM
  */
-public class MaxRetriesPolicyTest extends AbstractBaseTestCase {
+public class RetryPolicyMaxRetriesTest extends AbstractBaseTestCase {
 
 	@Test
 	public void shouldStopAfterConfiguredNumberOfRetries() throws Exception {

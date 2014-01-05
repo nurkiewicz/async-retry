@@ -1,6 +1,5 @@
-package com.blogspot.nurkiewicz.asyncretry.policy.exception;
+package com.blogspot.nurkiewicz.asyncretry.policy;
 
-import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -13,7 +12,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Tomasz Nurkiewicz
  * @since 7/18/13, 10:56 PM
  */
-public class ExceptionClassRetryPolicyDefaultsTest extends AbstractExceptionClassRetryPolicyTest {
+public class RetryPolicyDefaultsTest extends AbstractRetryPolicyTest {
 
 	@Test
 	public void byDefaultShouldRetryOnAllExceptions() throws Exception {

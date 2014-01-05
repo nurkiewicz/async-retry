@@ -1,6 +1,5 @@
-package com.blogspot.nurkiewicz.asyncretry.policy.exception;
+package com.blogspot.nurkiewicz.asyncretry.policy;
 
-import com.blogspot.nurkiewicz.asyncretry.policy.RetryPolicy;
 import org.testng.annotations.Test;
 
 import java.io.FileNotFoundException;
@@ -14,7 +13,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
  * @author Tomasz Nurkiewicz
  * @since 7/18/13, 11:25 PM
  */
-public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExceptionClassRetryPolicyTest {
+public class RetryPolicyBothBlackAndWhiteTest extends AbstractRetryPolicyTest {
 
 	@Test
 	public void shouldRetryOnGivenException() throws Exception {
