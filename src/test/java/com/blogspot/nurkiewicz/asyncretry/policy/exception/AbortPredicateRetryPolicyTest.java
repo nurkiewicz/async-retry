@@ -18,13 +18,10 @@ public class AbortPredicateRetryPolicyTest extends AbstractExceptionClassRetryPo
 	@Mock
 	private RetryContext retryContextMock;
 
-	@Mock
-	private RetryPolicy retryPolicyMock;
-
 	@Test
 	public void shouldAbortIfPredicateTrue() throws Exception {
 		//given
-		final RetryPolicy retryPolicy = always.abortIf(t -> true);
+		final RetryPolicy retryPolicy = new RetryPolicy().abortIf(t -> true);
 
 		//when
 		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
@@ -36,9 +33,8 @@ public class AbortPredicateRetryPolicyTest extends AbstractExceptionClassRetryPo
 	@Test
 	public void shouldProceedIfPredicateFalseAndChildAccepts() throws Exception {
 		//given
-		final RetryPolicy retryPolicy = new AbortPredicateRetryPolicy(retryPolicyMock, t -> false);
-		given(retryPolicyMock.shouldContinue(notNullRetryContext())).willReturn(true);
-
+		final RetryPolicy retryPolicy = new RetryPolicy().abortIf(t -> false);
+		given(retryContextMock.getLastThrowable()).willReturn(new RuntimeException());
 
 		//when
 		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
@@ -48,11 +44,9 @@ public class AbortPredicateRetryPolicyTest extends AbstractExceptionClassRetryPo
 	}
 
 	@Test
-	public void shouldAbortIfPredicateFalseAndChildAborts() throws Exception {
+	public void shouldAbortIfPredicateFalseButShouldNotRetry() throws Exception {
 		//given
-		final RetryPolicy retryPolicy = new AbortPredicateRetryPolicy(retryPolicyMock, t -> false);
-		given(retryPolicyMock.shouldContinue(notNullRetryContext())).willReturn(false);
-
+		final RetryPolicy retryPolicy = new RetryPolicy().abortIf(t -> false).dontRetry();
 
 		//when
 		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
@@ -64,8 +58,7 @@ public class AbortPredicateRetryPolicyTest extends AbstractExceptionClassRetryPo
 	@Test
 	public void shouldExamineExceptionAndDecide() throws Exception {
 		//given
-		final RetryPolicy retryPolicy = new AbortPredicateRetryPolicy(retryPolicyMock, t -> t.getMessage().contains("abort"));
-		given(retryPolicyMock.shouldContinue(notNullRetryContext())).willReturn(true);
+		final RetryPolicy retryPolicy = new RetryPolicy().abortIf(t -> t.getMessage().contains("abort"));
 
 		//when
 		final boolean abort = retryPolicy.shouldContinue(new AsyncRetryContext(retryPolicy, 1, new RuntimeException("abort")));

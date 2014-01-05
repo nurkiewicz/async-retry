@@ -18,7 +18,7 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldRetryOnGivenException() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+		final RetryPolicy policy = new RetryPolicy().
 				retryOn(IOException.class).
 				abortOn(NullPointerException.class);
 
@@ -29,7 +29,7 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldAbortOnGivenException() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+		final RetryPolicy policy = new RetryPolicy().
 				abortOn(IOException.class).
 				retryOn(NullPointerException.class);
 
@@ -40,7 +40,7 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldRetryUnlessGivenSubclass() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+		final RetryPolicy policy = new RetryPolicy().
 				retryOn(IOException.class).
 				abortOn(FileNotFoundException.class);
 
@@ -52,7 +52,7 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldRetryUnlessGivenSubclassWithReversedDeclarationOrder() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+		final RetryPolicy policy = new RetryPolicy().
 				abortOn(FileNotFoundException.class).
 				retryOn(IOException.class);
 
@@ -64,7 +64,7 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldUnderstandManyWhiteAndBlackListedExceptions() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+		final RetryPolicy policy = new RetryPolicy().
 				retryOn(Exception.class).
 				retryOn(LinkageError.class).
 				abortOn(IncompatibleClassChangeError.class).
@@ -85,7 +85,7 @@ public class ExceptionClassRetryPolicyBothBlackAndWhiteTest extends AbstractExce
 
 	@Test
 	public void shouldUnderstandManyWhiteAndBlackListedExceptionsInOneList() throws Exception {
-		final RetryPolicy policy = new ExceptionClassRetryPolicy(always).
+		final RetryPolicy policy = new RetryPolicy().
 				retryOn(Exception.class, LinkageError.class).
 				abortOn(IncompatibleClassChangeError.class, ClassCastException.class, ConnectException.class);
 
