@@ -1,7 +1,7 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
 import com.blogspot.nurkiewicz.asyncretry.backoff.Backoff;
-import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
+import com.blogspot.nurkiewicz.asyncretry.policy.AbortRetryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

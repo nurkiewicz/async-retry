@@ -1,4 +1,4 @@
-package com.blogspot.nurkiewicz.asyncretry.policy.exception;
+package com.blogspot.nurkiewicz.asyncretry.policy;
 
 /**
  * @author Tomasz Nurkiewicz

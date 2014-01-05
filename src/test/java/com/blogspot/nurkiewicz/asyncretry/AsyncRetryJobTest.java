@@ -1,6 +1,6 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
-import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
+import com.blogspot.nurkiewicz.asyncretry.policy.AbortRetryException;
 import org.fest.assertions.api.Assertions;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;

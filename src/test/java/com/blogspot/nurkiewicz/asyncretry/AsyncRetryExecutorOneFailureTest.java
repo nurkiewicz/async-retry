@@ -1,6 +1,6 @@
 package com.blogspot.nurkiewicz.asyncretry;
 
-import com.blogspot.nurkiewicz.asyncretry.policy.exception.AbortRetryException;
+import com.blogspot.nurkiewicz.asyncretry.policy.AbortRetryException;
 import org.testng.annotations.Test;
 
 import java.util.concurrent.CompletableFuture;
