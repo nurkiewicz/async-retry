@@ -199,7 +199,7 @@ Notice that the `AsyncRetryExecutor` does not take care of shutting down the `Sc
 
 ### Retrying policy
 
-#### Exceptions
+#### Exception classes
 
 By default every `Throwable` (except special `AbortRetryException`) thrown from user task causes retry. Obviously this is configurable. For example in JPA you may want to retry a transaction that failed due to [`OptimisticLockException`](http://docs.oracle.com/javaee/6/api/javax/persistence/OptimisticLockException.html) - but every other exception should fail immediately:
 
@@ -225,7 +225,7 @@ executor.
 	getWithRetry(ctx -> dao.optimistic());
 ```
 
-Clearly you don't want to retry `NullPointerException` or `IllegalArgumentException` as they indicate programming bug rather than transient failure. And finally you can combine both retry and abort policies. User code will retry in case of any `retryOn()` exception (or subclass) unless it should `abortOn()` specified exception. For example we want to retry every `IOException` or `SQLException` but abort if `FileNotFoundException` or `java.sql.DataTruncation` is encountered (order is irrelevant):
+Clearly you don't want to retry `NullPointerException` or `IllegalArgumentException` as they indicate programming bug rather than transient failure. And finally you can combine both retry and abort policies. User code will retry in case of any `retryOn()` exception (or subclass) unless it should `abortOn()` specified exception. For example we want to retry every `IOException` or `SQLException` but abort if `FileNotFoundException` or `java.sql.DataTruncation` is encountered (order of declarations is irrelevant):
 
 ```java
 executor.
@@ -235,6 +235,7 @@ executor.
 	abortOn(DataTruncation.class).
 	getWithRetry(ctx -> dao.load(42));
 ```
+#### Exception predicates
 
 If this is not enough you can provide custom predicate that will be invoked on each failure:
 
@@ -242,9 +243,21 @@ If this is not enough you can provide custom predicate that will be invoked on e
 executor.
 	abortIf(throwable ->
 		throwable instanceof SQLException &&
-				throwable.getMessage().contains("ORA-00911")
-	);
+				throwable.getMessage().contains("ORA-00911")	
+	).
+	retryIf(t -> t.getCause() != null);
 ```
+
+If any of `abortIf()` or `retryIf()` predicates return `true` task is aborted or retried respectively. Keep in mind that `abortIf()`/`retryIf()` take priority over `abortOn()`/`retryOn()` thus the following piece of code will retry on `FileNotFoundException("Access denied")`:
+
+```java
+executor.
+		abortOn(FileNotFoundException.class).
+		abortOn(NullPointerException.class).
+		retryIf(e -> e.getMessage().contains("denied"))
+``` 
+
+If more than one `abortIf()` predicate passes as well as more than one `retryIf()` predicate then computation is aborted.
 
 #### Max number of retries
 
@@ -259,6 +272,8 @@ In rare cases you may want to disable retries and barely take advantage from asy
 ```java
 executor.dontRetry()
 ```
+
+Max number of retries takes precedence over `*On()` and `*If()` family of methods.
 
 ### Delays between retries (backoff)
 
@@ -429,7 +444,7 @@ This library is covered with a strong battery of unit tests. However it wasn't y
 ```
 $ git clone https://github.com/nurkiewicz/async-retry.git
 $ cd async-retry
-$ git checkout 0.0.2
+$ git checkout 0.0.3
 $ mvn install
 ```
 
@@ -441,7 +456,7 @@ This library is not yet available in [Maven Central Repository](http://search.ma
 <dependency>
     <groupId>com.blogspot.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
@@ -461,9 +476,15 @@ it means you are not compiling using Java 8. [Download JDK 8 with lambda support
 
 ## Version history
 
+### 0.0.3 (05-01-2014)
+
+* Fixed [#3 *RetryOn ignored due to wrong command order*](https://github.com/nurkiewicz/async-retry/issues/3)
+* `AbortRetryException` class was moved from `com.blogspot.nurkiewicz.asyncretry.policy.exception` to `com.blogspot.nurkiewicz.asyncretry.policy`
+* Java 7 backport is no longer maintained startin from this version
+
 ### 0.0.2 (28-07-2013)
 
-* Ability to specify multiple exception classes in `retryOn()`/`abortON()` using varargs.
+* Ability to specify multiple exception classes in `retryOn()`/`abortON()` using varargs
 
 ### 0.0.1 (23-07-2013)
 
