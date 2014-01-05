@@ -18,9 +18,98 @@ public class RetryPolicyPredicatesTest extends AbstractRetryPolicyTest {
 	private RetryContext retryContextMock;
 
 	@Test
-	public void shouldAbortIfPredicateTrue() throws Exception {
+	public void shouldAbortIfAbortPredicateTrue() throws Exception {
 		//given
 		final RetryPolicy retryPolicy = new RetryPolicy().abortIf(t -> true);
+
+		//when
+		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
+
+		//then
+		assertThat(shouldRetry).isFalse();
+	}
+
+	@Test
+	public void shouldRetryIfRetryPredicateTrue() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new RetryPolicy().retryIf(t -> true);
+
+		//when
+		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
+
+		//then
+		assertThat(shouldRetry).isTrue();
+	}
+
+	@Test
+	public void shouldRetryIfBothPredicatesAbstainButClassShouldRetry() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new RetryPolicy().
+				retryIf(t -> false).
+				abortIf(t -> false);
+		given(retryContextMock.getLastThrowable()).willReturn(new RuntimeException());
+
+		//when
+		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
+
+		//then
+		assertThat(shouldRetry).isTrue();
+	}
+
+	@Test
+	public void shouldAbortIfBothPredicatesAbstainButClassShouldAbort() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new RetryPolicy().
+				abortOn(NullPointerException.class).
+				retryIf(t -> false).
+				abortIf(t -> false);
+		given(retryContextMock.getLastThrowable()).willReturn(new NullPointerException());
+
+		//when
+		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
+
+		//then
+		assertThat(shouldRetry).isFalse();
+	}
+
+	@Test
+	public void shouldRetryIfPredicateTrueEvenIfClassShouldAbort() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new RetryPolicy().
+				abortOn(NullPointerException.class).
+				retryIf(t -> true);
+		given(retryContextMock.getLastThrowable()).willReturn(new NullPointerException());
+
+		//when
+		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
+
+		//then
+		assertThat(shouldRetry).isTrue();
+	}
+
+	@Test
+	public void shouldAbortIfPredicateTrueEvenIfClassShouldRetry() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new RetryPolicy().
+				retryOn(NullPointerException.class).
+				abortIf(t -> true);
+		given(retryContextMock.getLastThrowable()).willReturn(new NullPointerException());
+
+		//when
+		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
+
+		//then
+		assertThat(shouldRetry).isFalse();
+	}
+
+	@Test
+	public void whenAbortAndRetryPredicatesBothYieldTrueThenAbortWins() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new RetryPolicy().
+				retryOn(NullPointerException.class).
+				retryIf(t -> t.getMessage().contains("Foo")).
+				abortIf(t -> t.getMessage().contains("Foo"));
+		given(retryContextMock.getLastThrowable()).willReturn(new NullPointerException("Foo"));
 
 		//when
 		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
@@ -46,6 +135,22 @@ public class RetryPolicyPredicatesTest extends AbstractRetryPolicyTest {
 	public void shouldAbortIfPredicateFalseButShouldNotRetry() throws Exception {
 		//given
 		final RetryPolicy retryPolicy = new RetryPolicy().abortIf(t -> false).dontRetry();
+
+		//when
+		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
+
+		//then
+		assertThat(shouldRetry).isFalse();
+	}
+
+	@Test
+	public void shouldAbortIfPredicateTrueButShouldNotRetry() throws Exception {
+		//given
+		final RetryPolicy retryPolicy = new RetryPolicy().
+				retryIf(t -> true).
+				dontRetry();
+		given(retryContextMock.getLastThrowable()).willReturn(new NullPointerException());
+		given(retryContextMock.getRetryCount()).willReturn(1);
 
 		//when
 		final boolean shouldRetry = retryPolicy.shouldContinue(retryContextMock);
