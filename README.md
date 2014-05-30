@@ -76,7 +76,7 @@ Often we are forced to [retry](http://servicedesignpatterns.com/WebServiceInfras
 
 This is not bad *per se* because it makes programming model much simpler - the library takes care of retrying and you simply have to wait for return value longer than usual. But not only it creates leaky abstraction (method that is typically very fast suddenly becomes slow due to retries and delay), but also wastes valuable threads since such facility will spend most of the time sleeping between retries. Therefore [`Async-Retry`](https://github.com/nurkiewicz/async-retry) utility was created, targeting **Java 8** (with [Java 7 backport](https://github.com/nurkiewicz/async-retry/tree/java7) existing) and addressing issues above.
 
-The main abstraction is [`RetryExecutor`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/RetryExecutor.java) that provides simple API:
+The main abstraction is [`RetryExecutor`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/nurkiewicz/asyncretry/RetryExecutor.java) that provides simple API:
 
 ```java
 public interface RetryExecutor {
@@ -91,7 +91,7 @@ public interface RetryExecutor {
 }
 ```
 
-Don't worry about [`RetryRunnable`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/function/RetryRunnable.java) and [`RetryCallable`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/function/RetryCallable.java) - they allow checked exceptions for your convenience and most of the time we will use lambda expressions anyway.
+Don't worry about [`RetryRunnable`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/nurkiewicz/asyncretry/function/RetryRunnable.java) and [`RetryCallable`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/nurkiewicz/asyncretry/function/RetryCallable.java) - they allow checked exceptions for your convenience and most of the time we will use lambda expressions anyway.
 
 Please note that it returns [`CompletableFuture`](http://nurkiewicz.blogspot.no/2013/05/java-8-definitive-guide-to.html). We no longer pretend that calling faulty method is fast. If the library encounters an exception it will retry our block of code with preconfigured backoff delays. The invocation time will sky-rocket from milliseconds to several seconds. `CompletableFuture` clearly indicates that. Moreover it's not a dumb [`java.util.concurrent.Future`](http://nurkiewicz.blogspot.no/2013/02/javautilconcurrentfuture-basics.html) we all know - [`CompletableFuture` in Java 8 is very powerful](http://nurkiewicz.blogspot.no/2013/05/java-8-completablefuture-in-action.html) and most importantly - non-blocking by default.
 
@@ -107,7 +107,7 @@ RetryExecutor executor = //see "Creating an instance of RetryExecutor" below
 executor.getWithRetry(() -> new Socket("localhost", 8080));
 ```
 
-Returned `CompletableFuture<Socket>` will be resolved once connecting to `localhost:8080` succeeds. Optionally we can consume [`RetryContext`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/RetryContext.java) to get extra context like which retry is currently being executed:
+Returned `CompletableFuture<Socket>` will be resolved once connecting to `localhost:8080` succeeds. Optionally we can consume [`RetryContext`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/nurkiewicz/asyncretry/RetryContext.java) to get extra context like which retry is currently being executed:
 
 ```java
 executor.
@@ -173,13 +173,13 @@ executor.
 
 ## Configuration options
 
-In general there are two important factors you can configure: [`RetryPolicy`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/policy/RetryPolicy.java) that controls whether next retry attempt should be made and [`Backoff`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/backoff/Backoff.java) - that optionally adds delay between subsequent retry attempts.
+In general there are two important factors you can configure: [`RetryPolicy`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/nurkiewicz/asyncretry/policy/RetryPolicy.java) that controls whether next retry attempt should be made and [`Backoff`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/nurkiewicz/asyncretry/backoff/Backoff.java) - that optionally adds delay between subsequent retry attempts.
 
 By default `RetryExecutor` repeats user task infinitely on every `	Throwable` and adds 1 second delay between retry attempts.
 
 ### Creating an instance of `RetryExecutor`
 
-Default implementation of `RetryExecutor` is [`AsyncRetryExecutor`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/blogspot/nurkiewicz/asyncretry/AsyncRetryExecutor.java) which you can create directly:
+Default implementation of `RetryExecutor` is [`AsyncRetryExecutor`](https://github.com/nurkiewicz/async-retry/blob/master/src/main/java/com/nurkiewicz/asyncretry/AsyncRetryExecutor.java) which you can create directly:
 
 ```java
 ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -454,9 +454,9 @@ This library is not yet available in [Maven Central Repository](http://search.ma
 
 ```xml
 <dependency>
-    <groupId>com.blogspot.nurkiewicz.asyncretry</groupId>
+    <groupId>com.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
 </dependency>
 ```
 
@@ -479,7 +479,7 @@ it means you are not compiling using Java 8. [Download JDK 8 with lambda support
 ### 0.0.3 (05-01-2014)
 
 * Fixed [#3 *RetryOn ignored due to wrong command order*](https://github.com/nurkiewicz/async-retry/issues/3)
-* `AbortRetryException` class was moved from `com.blogspot.nurkiewicz.asyncretry.policy.exception` to `com.blogspot.nurkiewicz.asyncretry.policy`
+* `AbortRetryException` class was moved from `com.nurkiewicz.asyncretry.policy.exception` to `com.nurkiewicz.asyncretry.policy`
 * Java 7 backport is no longer maintained startin from this version
 
 ### 0.0.2 (28-07-2013)
