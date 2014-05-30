@@ -1,10 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<name>Async-Retry</name>
-	<groupId>com.blogspot.nurkiewicz.asyncretry</groupId>
+	<groupId>com.nurkiewicz.asyncretry</groupId>
 	<artifactId>asyncretry</artifactId>
 	<version>0.0.4-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<description>Library that asynchronously retries failed invocations of arbitrary code</description>
+	<url>https://github.com/nurkiewicz/async-retry</url>
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
@@ -22,6 +29,12 @@
 		<developerConnection>scm:git:git@github.com:nurkiewicz/async-retry.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
+
+	<developers>
+		<developer>
+			<name>Tomasz Nurkiewicz</name>
+		</developer>
+	</developers>
 
 	<dependencies>
 
@@ -82,9 +95,45 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.4</version>
+				<version>2.5</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
