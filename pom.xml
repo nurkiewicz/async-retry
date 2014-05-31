@@ -8,7 +8,7 @@
 	<name>Async-Retry</name>
 	<groupId>com.nurkiewicz.asyncretry</groupId>
 	<artifactId>asyncretry</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<version>0.0.5</version>
 	<packaging>jar</packaging>
 	<description>Library that asynchronously retries failed invocations of arbitrary code</description>
 	<url>https://github.com/nurkiewicz/async-retry</url>
@@ -27,7 +27,7 @@
 		<connection>scm:git:git@github.com:nurkiewicz/async-retry.git</connection>
 		<url>scm:git:git@github.com:nurkiewicz/async-retry.git</url>
 		<developerConnection>scm:git:git@github.com:nurkiewicz/async-retry.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>0.0.5</tag>
 	</scm>
 
 	<developers>
