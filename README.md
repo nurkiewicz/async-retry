@@ -450,13 +450,13 @@ $ mvn install
 
 ### Maven
 
-This library is not yet available in [Maven Central Repository](http://search.maven.org). But once built locally you can access it via:
+This library is available in [Maven Central Repository](http://search.maven.org):
 
 ```xml
 <dependency>
     <groupId>com.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 
@@ -476,11 +476,15 @@ it means you are not compiling using Java 8. [Download JDK 8 with lambda support
 
 ## Version history
 
+### 0.0.4 (30-05-2014
+
+* First official release into [Maven Central repository](http://central.maven.org/maven2/com/nurkiewicz/asyncretry/asyncretry).
+
 ### 0.0.3 (05-01-2014)
 
 * Fixed [#3 *RetryOn ignored due to wrong command order*](https://github.com/nurkiewicz/async-retry/issues/3)
 * `AbortRetryException` class was moved from `com.nurkiewicz.asyncretry.policy.exception` to `com.nurkiewicz.asyncretry.policy`
-* Java 7 backport is no longer maintained startin from this version
+* Java 7 backport is no longer maintained starting from this version
 
 ### 0.0.2 (28-07-2013)
 
