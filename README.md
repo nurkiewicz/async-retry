@@ -1,6 +1,6 @@
 # Asynchronous retry pattern
 
-When you have a piece of code that often fails and must be retried, this Java 7/8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
+When you have a piece of code that often fails and must be retried, this Java 8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
 
 ```java
 ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
