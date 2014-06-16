@@ -1,4 +1,4 @@
-# Asynchronous retry pattern
+# Asynchronous retry pattern [![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=master)](https://travis-ci.org/nurkiewicz/async-retry)
 
 When you have a piece of code that often fails and must be retried, this Java 8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
 
@@ -435,7 +435,7 @@ As you can see integrating modern, immutable services with Spring is just as sim
 
 ## Maturity
 
-This library is covered with a strong battery of unit tests. However it wasn't yet used in any production code and the API is subject to change. Of course you are encouraged to submit [bugs, feature requests](https://github.com/nurkiewicz/async-retry/issues) and [pull requests](https://github.com/nurkiewicz/async-retry/pulls). It was developed with Java 8 in mind but [Java 7 backport](https://github.com/nurkiewicz/async-retry/tree/java7) exists with slightly more verbose API and mandatory Guava dependency ([`ListenableFuture`](http://nurkiewicz.blogspot.no/2013/02/listenablefuture-in-guava.html) instead of [`CompletableFuture` from Java 8](http://nurkiewicz.blogspot.no/2013/05/java-8-definitive-guide-to.html)).
+This library is covered with a strong battery of unit tests ([![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=master)](https://travis-ci.org/nurkiewicz/async-retry)). However it wasn't yet used in any production code and the API is subject to change. Of course you are encouraged to submit [bugs, feature requests](https://github.com/nurkiewicz/async-retry/issues) and [pull requests](https://github.com/nurkiewicz/async-retry/pulls). It was developed with Java 8 in mind but [Java 7 backport](https://github.com/nurkiewicz/async-retry/tree/java7) exists with slightly more verbose API and mandatory Guava dependency ([`ListenableFuture`](http://nurkiewicz.blogspot.no/2013/02/listenablefuture-in-guava.html) instead of [`CompletableFuture` from Java 8](http://nurkiewicz.blogspot.no/2013/05/java-8-definitive-guide-to.html)).
 
 ## Using
 
