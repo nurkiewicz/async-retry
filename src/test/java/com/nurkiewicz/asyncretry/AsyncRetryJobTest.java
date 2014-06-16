@@ -1,7 +1,7 @@
 package com.nurkiewicz.asyncretry;
 
 import com.nurkiewicz.asyncretry.policy.AbortRetryException;
-import org.fest.assertions.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.mockito.InOrder;
 import org.testng.annotations.Test;
 
@@ -11,8 +11,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static com.nurkiewicz.asyncretry.backoff.FixedIntervalBackoff.DEFAULT_PERIOD_MILLIS;
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Fail.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;

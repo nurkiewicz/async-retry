@@ -8,7 +8,7 @@ import java.util.Random;
 
 import static com.nurkiewicz.asyncretry.backoff.FixedIntervalBackoff.DEFAULT_PERIOD_MILLIS;
 import static com.nurkiewicz.asyncretry.backoff.UniformRandomBackoff.DEFAULT_RANDOM_RANGE_MILLIS;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 /**

@@ -3,7 +3,7 @@ package com.nurkiewicz.asyncretry.policy;
 import com.nurkiewicz.asyncretry.AbstractBaseTestCase;
 import org.testng.annotations.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tomasz Nurkiewicz

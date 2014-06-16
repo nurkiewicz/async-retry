@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.concurrent.TimeoutException;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tomasz Nurkiewicz

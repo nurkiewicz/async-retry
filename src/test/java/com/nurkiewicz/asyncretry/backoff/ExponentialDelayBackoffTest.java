@@ -3,8 +3,8 @@ package com.nurkiewicz.asyncretry.backoff;
 import com.nurkiewicz.asyncretry.AbstractBaseTestCase;
 import org.testng.annotations.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 /**
  * @author Tomasz Nurkiewicz

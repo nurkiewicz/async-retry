@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.CompletableFuture;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;

@@ -5,7 +5,7 @@ import com.nurkiewicz.asyncretry.RetryContext;
 import org.mockito.Mock;
 import org.testng.annotations.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 /**
