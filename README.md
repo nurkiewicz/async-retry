@@ -1,6 +1,6 @@
 # Asynchronous retry pattern [![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=master)](https://travis-ci.org/nurkiewicz/async-retry)
 
-When you have a piece of code that often fails and must be retried, this Java 8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
+When you have a piece of code that often fails and must be retried, this Java 7/8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
 
 ```java
 ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -439,15 +439,6 @@ This library is covered with a strong battery of unit tests ([![Build Status](ht
 
 ## Using
 
-### Building:
-
-```
-$ git clone https://github.com/nurkiewicz/async-retry.git
-$ cd async-retry
-$ git checkout 0.0.3
-$ mvn install
-```
-
 ### Maven
 
 This library is available in [Maven Central Repository](http://search.maven.org):
@@ -456,6 +447,19 @@ This library is available in [Maven Central Repository](http://search.maven.org)
 <dependency>
     <groupId>com.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry</artifactId>
+    <version>0.0.5</version>
+</dependency>
+```
+
+
+### Maven (Java 7)
+
+Because backport to Java 7 has different API, it is maintained in a [separate branch](https://github.com/nurkiewicz/async-retry/tree/java7). It is also deployed to Maven Central under:
+
+```xml
+<dependency>
+    <groupId>com.nurkiewicz.asyncretry</groupId>
+    <artifactId>asyncretry-jdk7</artifactId>
     <version>0.0.5</version>
 </dependency>
 ```
