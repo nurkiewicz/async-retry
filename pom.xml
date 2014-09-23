@@ -104,7 +104,7 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.5</version>
 				<configuration>
-					<tagNameFormat>@{project.version}</tagNameFormat>
+					<tagNameFormat>jdk7-@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>
 			<plugin>
