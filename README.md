@@ -1,4 +1,4 @@
-# Asynchronous retry pattern [![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=master)](https://travis-ci.org/nurkiewicz/async-retry) [![Coverage Status](https://img.shields.io/coveralls/nurkiewicz/async-retry.svg)](https://coveralls.io/r/nurkiewicz/async-retry)
+# Asynchronous retry pattern [![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=master)](https://travis-ci.org/nurkiewicz/async-retry) [![Coverage Status](https://img.shields.io/coveralls/nurkiewicz/async-retry.svg)](https://coveralls.io/r/nurkiewicz/async-retry) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry)
 
 When you have a piece of code that often fails and must be retried, this Java 7/8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
 
