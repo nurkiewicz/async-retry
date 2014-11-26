@@ -1,4 +1,6 @@
-# Asynchronous retry pattern [![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=java7)](https://travis-ci.org/nurkiewicz/async-retry) [![Coverage Status](https://img.shields.io/coveralls/nurkiewicz/async-retry.svg)](https://coveralls.io/r/nurkiewicz/async-retry)
+[![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=java7)](https://travis-ci.org/nurkiewicz/async-retry) [![Coverage Status](https://img.shields.io/coveralls/nurkiewicz/async-retry.svg)](https://coveralls.io/r/nurkiewicz/async-retry) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry-jdk7/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry-jdk7)
+
+# Asynchronous retry pattern
 
 When you have a piece of code that often fails and must be retried, this Java 7/8 library provides rich and unobtrusive API with fast and scalable solution to this problem:
 
@@ -447,7 +449,7 @@ This library is available in [Maven Central Repository](http://search.maven.org)
 <dependency>
     <groupId>com.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
 </dependency>
 ```
 
@@ -460,7 +462,7 @@ Because backport to Java 7 has different API, it is maintained in a [separate br
 <dependency>
     <groupId>com.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry-jdk7</artifactId>
-    <version>0.0.5</version>
+    <version>0.0.6</version>
 </dependency>
 ```
 
@@ -480,7 +482,15 @@ it means you are not compiling using Java 8. [Download JDK 8 with lambda support
 
 ## Version history
 
-### 0.0.4 (30-05-2014
+### 0.0.6 (26-11-2014)
+
+* [`SyncRetryExecutor`](https://github.com/nurkiewicz/async-retry/blob/0.0.6/src/main/java/com/nurkiewicz/asyncretry/SyncRetryExecutor.java) convenience class.
+
+### 0.0.5 (31-05-2014)
+
+* Bringing back Java 7 support
+
+### 0.0.4 (30-05-2014)
 
 * First official release into [Maven Central repository](http://central.maven.org/maven2/com/nurkiewicz/asyncretry/asyncretry).
 
