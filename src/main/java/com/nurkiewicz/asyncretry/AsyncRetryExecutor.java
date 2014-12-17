@@ -193,6 +193,10 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return this.withRetryPolicy(this.retryPolicy.dontRetry());
 	}
 
+	public AsyncRetryExecutor retryInfinitely() {
+		return this.withMaxRetries(Integer.MAX_VALUE);
+	}
+
 	public AsyncRetryExecutor withNoDelay() {
 		return this.withBackoff(new FixedIntervalBackoff(0));
 	}
