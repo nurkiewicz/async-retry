@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=master)](https://travis-ci.org/nurkiewicz/async-retry) [![Coverage Status](https://img.shields.io/coveralls/nurkiewicz/async-retry.svg)](https://coveralls.io/r/nurkiewicz/async-retry) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry)
+[![Build Status](https://travis-ci.org/nurkiewicz/async-retry.svg?branch=master)](https://travis-ci.org/nurkiewicz/async-retry) [![Build Status](https://drone.io/github.com/nurkiewicz/async-retry/status.png)](https://drone.io/github.com/nurkiewicz/async-retry/latest) [![Coverage Status](https://img.shields.io/coveralls/nurkiewicz/async-retry.svg)](https://coveralls.io/r/nurkiewicz/async-retry) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.nurkiewicz.asyncretry/asyncretry)
 
 # Asynchronous retry pattern
 
