@@ -107,6 +107,32 @@ public class AsyncRetryJobTest extends AbstractBaseTestCase {
 	}
 
 	@Test
+	public void shouldRethrowOriginalExceptionFromUserFutureCompletionAndAbortWhenTestFails() throws Exception {
+		//given
+		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock).
+				abortIf(t -> { throw new RuntimeException("test invalid"); });
+
+		given(serviceMock.safeAsync()).willReturn(
+				failedAsync(new SocketException(DON_T_PANIC))
+		);
+
+		//when
+		final CompletableFuture<String> future = executor.getFutureWithRetry(ctx -> serviceMock.safeAsync());
+
+		//then
+		assertThat(future.isCompletedExceptionally()).isTrue();
+
+		try {
+			future.get();
+			failBecauseExceptionWasNotThrown(ExecutionException.class);
+		} catch (ExecutionException e) {
+			final Throwable cause = e.getCause();
+			assertThat(cause).isInstanceOf(SocketException.class);
+			assertThat(cause).hasMessage(DON_T_PANIC);
+		}
+	}
+
+	@Test
 	public void shouldAbortWhenTargetFutureWantsToAbort() throws Exception {
 		//given
 		final RetryExecutor executor = new AsyncRetryExecutor(schedulerMock);
