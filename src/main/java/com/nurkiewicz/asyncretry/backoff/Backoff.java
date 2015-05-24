@@ -44,4 +44,7 @@ public interface Backoff {
 		return new BoundedMaxBackoff(this);
 	}
 
+	default Backoff withFirstRetryNoDelay() {
+		return new FirstRetryNoDelayBackoff(this);
+	}
 }

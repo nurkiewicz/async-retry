@@ -345,6 +345,19 @@ You may also put hard lower limit on delay time to avoid to short retry times be
 executor.withMinDelay(50)   //ms
 ```
 
+#### No initial delay
+
+There are cases when you want to run first retry immediately and fall back to configured backoff mechanism for subsequent requests. You can use `firstRetryNoDelay()` method:
+
+```java
+executor
+	.withExponentialBackoff(100, 2)
+	.firstRetryNoDelay();
+CompletableFuture<String> future = executor.getWithRetry(this::someTask);
+```
+
+With the above configuration first retry is executed immediately, second retry after 100 ms, third after 200 ms and so on. Without `firstRetryNoDelay()` first retry would be delayed by 100 ms already.
+
 ## Implementation details
 
 This library was built with Java 8 in mind to take advantage of lambdas and new `CompletableFuture` abstraction (but [Java 7 port with Guava dependency exists](https://github.com/nurkiewicz/async-retry/tree/java7)). It uses `ScheduledExecutorService` underneath to run tasks and schedule retries in the future - which allows best thread utilization.

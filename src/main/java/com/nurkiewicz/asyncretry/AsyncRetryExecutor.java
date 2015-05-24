@@ -189,4 +189,8 @@ public class AsyncRetryExecutor implements RetryExecutor {
 		return this.withBackoff(new FixedIntervalBackoff(0));
 	}
 
+	public AsyncRetryExecutor firstRetryNoDelay() {
+		return this.withBackoff(this.backoff.withFirstRetryNoDelay());
+	}
+
 }

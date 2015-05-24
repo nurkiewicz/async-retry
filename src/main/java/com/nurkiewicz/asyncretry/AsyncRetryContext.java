@@ -39,4 +39,8 @@ public class AsyncRetryContext implements RetryContext {
 		return new AsyncRetryContext(retryPolicy, retry + 1, cause);
 	}
 
+	public AsyncRetryContext prevRetry() {
+		return new AsyncRetryContext(retryPolicy, retry - 1, lastThrowable);
+	}
+
 }
