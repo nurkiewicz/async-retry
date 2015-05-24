@@ -55,18 +55,22 @@ public abstract class RetryJob<V> implements Runnable {
 		final AsyncRetryContext nextRetryContext = context.nextRetry(t);
 
 		try {
-			if (parent.getRetryPolicy().shouldContinue(nextRetryContext)) {
-				final long delay = calculateNextDelay(duration, nextRetryContext, parent.getBackoff());
-				retryWithDelay(nextRetryContext, delay, duration);
-			} else {
-				logFailure(nextRetryContext, duration);
-				future.completeExceptionally(t);
-			}
-		} catch (Throwable t2) {
+			retryOrAbort(t, duration, nextRetryContext);
+		} catch (Throwable predicateError) {
 			log.error("Threw while trying to decide on retry {} after {}",
 					nextRetryContext.getRetryCount(),
 					duration,
-					t2);
+					predicateError);
+			future.completeExceptionally(t);
+		}
+	}
+
+	private void retryOrAbort(Throwable t, long duration, AsyncRetryContext nextRetryContext) {
+		if (parent.getRetryPolicy().shouldContinue(nextRetryContext)) {
+			final long delay = calculateNextDelay(duration, nextRetryContext, parent.getBackoff());
+			retryWithDelay(nextRetryContext, delay, duration);
+		} else {
+			logFailure(nextRetryContext, duration);
 			future.completeExceptionally(t);
 		}
 	}
