@@ -462,7 +462,7 @@ This library is available in [Maven Central Repository](http://search.maven.org)
 <dependency>
     <groupId>com.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
 </dependency>
 ```
 
@@ -475,7 +475,7 @@ Because backport to Java 7 has different API, it is maintained in a [separate br
 <dependency>
     <groupId>com.nurkiewicz.asyncretry</groupId>
     <artifactId>asyncretry-jdk7</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
 </dependency>
 ```
 
@@ -494,6 +494,12 @@ it means you are not compiling using Java 8. [Download JDK 8 with lambda support
 
 
 ## Version history
+
+### 0.0.7 (24-05-2015)
+
+* [`firstRetryNoDelay()` method](https://github.com/nurkiewicz/async-retry/issues/6)
+* [Add withNoRetries() and withInfiniteRetries()](https://github.com/nurkiewicz/async-retry/issues/5)
+* Fixed [*Errors from predicates are silently ignored*](https://github.com/nurkiewicz/async-retry/pull/7)
 
 ### 0.0.6 (26-11-2014)
 
